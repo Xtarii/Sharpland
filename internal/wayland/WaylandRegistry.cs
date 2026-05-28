@@ -1,0 +1,56 @@
+using System.Runtime.InteropServices;
+
+namespace Sharpland;
+
+/// <summary>
+/// Wayland registry object
+/// </summary>
+internal partial class WaylandRegistry {
+    [LibraryImport(Wayland.WRAPPER)]
+    private static partial IntPtr wrapper_wl_display_get_registry(IntPtr display);
+    [LibraryImport(Wayland.WRAPPER)]
+    private static unsafe partial int wrapper_wl_registry_add_listener(IntPtr registry, Wayland.Listener *listener, void *data);
+
+
+
+
+
+    /// <summary>
+    /// Wayland registry instance
+    /// </summary>
+    internal IntPtr Instance { get; private set; }
+
+
+
+    /// <summary>
+    /// Creates registry instance
+    /// <para/>
+    /// The <paramref name="display"/> is the parent display of
+    /// the registry object.
+    /// </summary>
+    /// <param name="display">Wayland display</param>
+    /// <exception cref="ExternalException">
+    /// This is thrown if there was an error getting the
+    /// wayland registry from the display object.
+    /// </exception>
+    public WaylandRegistry(WaylandDisplay display) {
+        Instance = wrapper_wl_display_get_registry(display.Instance);
+        if(Instance == IntPtr.Zero)
+            throw new ExternalException($"Failed to get registry from display: {display}");
+    }
+
+
+
+    /// <summary>
+    /// Adds listener to registry events
+    /// </summary>
+    /// <param name="listener">Registry event listener object</param>
+    /// <param name="data">Data to send with events</param>
+    /// <typeparam name="T">Type of data</typeparam>
+    /// <returns>Add listener status</returns>
+    public unsafe int AddListener<T>(Wayland.Listener *listener, T data) where T : unmanaged {
+        void *sd = &data;
+        int res = wrapper_wl_registry_add_listener(Instance, listener, sd);
+        return res;
+    }
+}

@@ -1,0 +1,24 @@
+#
+# Test files for building the library
+# They are not needed - I  used them to help get Wayland to work in C++
+# before making a wrapper.
+runner/
+main.cpp
+main
+extra.hpp
+
+
+
+#
+# Editor
+#
+.vscode/
+
+
+
+#
+# Library files
+#
+lib/*
+bin/
+obj/
