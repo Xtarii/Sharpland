@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [[ "$1" == "run" ]]; then
-    g++ main.cpp -o main -lwayland-client -lwayland-cursor
-    ./main
-else
-    echo "Usage:"
-    echo "   - run:     Compiles and runs main.cpp"
-fi
