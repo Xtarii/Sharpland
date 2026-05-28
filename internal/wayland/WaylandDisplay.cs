@@ -67,6 +67,13 @@ internal partial class WaylandDisplay : IDisposable {
     /// Blocks until the server process all currently issued
     /// requests and sends out pending events on all event queues.
     /// </summary>
-    /// <returns>The number of dispatched events on success or -1 on failure</returns>
-    public int RoundTrip() => wl_display_roundtrip(Instance);
+    /// <returns>The number of dispatched events</returns>
+    /// <exception cref="ExternalException">
+    /// This gets thrown if the display round trip failed.
+    /// </exception>
+    public int RoundTrip() {
+        int res = wl_display_roundtrip(Instance);
+        if(res < 0) throw new ExternalException("Display round trip failed.");
+        return res;
+    }
 }
