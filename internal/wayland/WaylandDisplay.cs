@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 namespace Sharpland;
 
 /// <summary>
-/// Wayland display object
+/// Wayland display object wrapper
 /// <para/>
 /// A wrapper for the native wayland
 /// display object.
@@ -21,7 +21,7 @@ internal partial class WaylandDisplay : IDisposable {
 
 
     /// <summary>
-    /// Display native instance
+    /// Wayland display instance
     /// </summary>
     internal IntPtr Instance { get; private set; }
 

@@ -3,22 +3,21 @@
 namespace Sharpland;
 
 public class Sharpland {
+
+    private static Sharpland? Instance;
+
     private WaylandDisplay display;
     private WaylandRegistry registry;
-
-
-
-    struct Window {
-        public int width, height;
-    }
+    private IntPtr compositor;
 
 
 
     public Sharpland(string? name) {
+        Instance = this;
         display = new(name);
         registry = display.GetRegistry();
 
-        Window window = new();
+
 
         // Adds listener
         unsafe {
@@ -26,7 +25,7 @@ public class Sharpland {
                 Global = &Global,
                 GlobalRemove = &Remove
             };
-            registry.AddListener(&listener, window);
+            registry.AddListener(&listener, 0);
         }
 
         display.RoundTrip();
@@ -36,19 +35,21 @@ public class Sharpland {
 
 
 
-    public void Destroy() => display.Dispose();
+    public void Destroy() {
+        display.Dispose();
+    }
 
 
 
-    static unsafe void Global(void *data, IntPtr registry, uint name, IntPtr @interface, uint version) {
-        string i = Marshal.PtrToStringAnsi(@interface) ?? "<none>";
-        Console.WriteLine($"INFO {name} : {i} : {version}");
+    static unsafe void Global(void *data, IntPtr registry, uint name, IntPtr i, uint version) {
+        string? @interface = Marshal.PtrToStringAnsi(i);
+        if(@interface == null) return;
 
-        Window *window = (Window*)data;
-        window->width += (int)name;
-        window->height += (int)version;
 
-        Console.WriteLine(window->width + " : " + window->height);
+
+        if(@interface == "wl_compositor") {
+            Instance?.compositor = Instance.registry.Bind(WaylandInterface.Compositor(), name, 1);
+        }
     }
     static unsafe void Remove(void *data, IntPtr registry, uint name) {}
 }

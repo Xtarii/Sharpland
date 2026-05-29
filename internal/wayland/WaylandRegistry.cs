@@ -3,13 +3,15 @@ using System.Runtime.InteropServices;
 namespace Sharpland;
 
 /// <summary>
-/// Wayland registry object
+/// Wayland registry object wrapper
 /// </summary>
 internal partial class WaylandRegistry {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_display_get_registry(IntPtr display);
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_wl_registry_add_listener(IntPtr registry, Wayland.Listener *listener, void *data);
+    [LibraryImport(Wayland.WRAPPER)]
+    private static partial IntPtr wrapper_wl_registry_bind(IntPtr wl_registry, uint name, IntPtr @interface, uint version);
 
 
 
@@ -52,5 +54,16 @@ internal partial class WaylandRegistry {
         void *sd = &data;
         int res = wrapper_wl_registry_add_listener(Instance, listener, sd);
         return res;
+    }
+
+    /// <summary>
+    /// Binds a new, client-created object to the server using the
+    /// specified name as the identifier.
+    /// </summary>
+    /// <param name="interface">Type of object to bind</param>
+    /// <param name="name">Object identifier</param>
+    /// <param name="version">Object version</param>
+    public IntPtr Bind(IntPtr @interface, uint name, uint version) {
+        return wrapper_wl_registry_bind(Instance, name, @interface, version);
     }
 }
