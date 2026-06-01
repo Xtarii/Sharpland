@@ -1,3 +1,4 @@
+#include "xdg/xdg.h"
 #include <wayland-client-protocol.h>
 
 //
@@ -7,6 +8,11 @@
 //
 
 const struct wl_interface * wrapper_wl_compositor_interface() { return &wl_compositor_interface; }
+const struct wl_interface * wrapper_wl_subcompositor_interface() { return &wl_subcompositor_interface; }
+const struct wl_interface * wrapper_wl_seat_interface() { return &wl_seat_interface; }
+const struct wl_interface * wrapper_wl_shm_interface() { return &wl_shm_interface; }
+const struct wl_interface * wrapper_xdg_wm_base_interface() { return &xdg_wm_base_interface; }
+const struct wl_interface * wrapper_xdg_decoration_manager_interface() { return &xdg_decoration_manager_interface; }
 
 
 
@@ -25,3 +31,11 @@ void * wrapper_wl_registry_bind(struct wl_registry *wl_registry, uint32_t name, 
 //
 
 struct wl_surface * wrapper_wl_compositor_create_surface(struct wl_compositor *wl_compositor) { return wl_compositor_create_surface(wl_compositor); }
+
+
+
+//
+// Seat function wrapper
+//
+
+int wrapper_wl_seat_add_listener(struct wl_seat *wl_seat, const struct wl_seat_listener *listener, void *data) { return wl_seat_add_listener(wl_seat, listener, data); }

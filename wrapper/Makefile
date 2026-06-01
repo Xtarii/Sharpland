@@ -1,2 +1,4 @@
-build:
-	gcc -shared -fPIC wrapper.c -o ../lib/libwayland-wrapper.so -lwayland-client
+files=xdg/xdg.c wrapper.c
+
+build: xdg/* wrapper.c
+	gcc -shared -fPIC -lwayland-client -o ../lib/libwayland-wrapper.so $(files)
