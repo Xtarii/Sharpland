@@ -15,6 +15,8 @@ internal partial class WaylandDisplay : IDisposable {
     private static partial void wl_display_disconnect(IntPtr display);
     [LibraryImport(Wayland.LIBRARY)]
     private static partial int wl_display_roundtrip(IntPtr display);
+    [LibraryImport(Wayland.LIBRARY)]
+    private static partial int wl_display_flush(IntPtr display);
 
 
 
@@ -74,6 +76,15 @@ internal partial class WaylandDisplay : IDisposable {
     public int RoundTrip() {
         int res = wl_display_roundtrip(Instance);
         if(res < 0) throw new ExternalException("Display round trip failed.");
+        return res;
+    }
+
+    /// <summary>
+    /// Sends data to the compositor
+    /// </summary>
+    /// <returns>Flush status</returns>
+    public int Flush() {
+        int res = wl_display_flush(Instance);
         return res;
     }
 }
