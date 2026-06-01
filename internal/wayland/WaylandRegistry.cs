@@ -48,11 +48,9 @@ internal partial class WaylandRegistry {
     /// </summary>
     /// <param name="listener">Registry event listener object</param>
     /// <param name="data">Data to send with events</param>
-    /// <typeparam name="T">Type of data</typeparam>
     /// <returns>Add listener status</returns>
-    public unsafe int AddListener<T>(Wayland.Listener *listener, T data) where T : unmanaged {
-        void *sd = &data;
-        int res = wrapper_wl_registry_add_listener(Instance, listener, sd);
+    public unsafe int AddListener(Wayland.Listener *listener, void *data) {
+        int res = wrapper_wl_registry_add_listener(Instance, listener, data);
         return res;
     }
 

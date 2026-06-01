@@ -4,8 +4,7 @@ namespace Sharpland;
 
 public class Sharpland {
 
-    private static Sharpland? Instance;
-
+    private GCHandle instance;
     private WaylandDisplay display;
     private WaylandRegistry registry;
     private IntPtr compositor;
@@ -13,7 +12,7 @@ public class Sharpland {
 
 
     public Sharpland(string? name) {
-        Instance = this;
+        instance = GCHandle.Alloc(this);
         display = new(name);
         registry = display.GetRegistry();
 
@@ -25,7 +24,7 @@ public class Sharpland {
                 Global = &Global,
                 GlobalRemove = &Remove
             };
-            registry.AddListener(&listener, 0);
+            registry.AddListener(&listener, GCHandle.ToIntPtr(instance).ToPointer());
         }
 
         display.RoundTrip();
@@ -42,13 +41,19 @@ public class Sharpland {
 
 
     static unsafe void Global(void *data, IntPtr registry, uint name, IntPtr i, uint version) {
+        IntPtr ptr = new(data);
+        Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
         string? @interface = Marshal.PtrToStringAnsi(i);
-        if(@interface == null) return;
+
+        if(@interface == null || instance == null) return;
 
 
 
         if(@interface == "wl_compositor") {
-            Instance?.compositor = Instance.registry.Bind(WaylandInterface.Compositor(), name, 1);
+            IntPtr comp = instance.registry.Bind(WaylandInterface.Compositor(), name, 1);
+            instance.compositor = comp;
+        } else {
+            Console.WriteLine($"UNSET INTERFACE: {@interface}");
         }
     }
     static unsafe void Remove(void *data, IntPtr registry, uint name) {}
