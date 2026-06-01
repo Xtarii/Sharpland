@@ -7,7 +7,7 @@ public class Sharpland {
     private GCHandle instance;
     private WaylandDisplay display;
     private WaylandRegistry registry;
-    private IntPtr compositor;
+    private WaylandCompositor? compositor;
 
 
 
@@ -50,8 +50,8 @@ public class Sharpland {
 
 
         if(@interface == "wl_compositor") {
-            IntPtr comp = instance.registry.Bind(WaylandInterface.Compositor(), name, 1);
-            instance.compositor = comp;
+            instance.compositor = new(instance.registry, name, 1);
+
         } else {
             Console.WriteLine($"UNSET INTERFACE: {@interface}");
         }
