@@ -55,6 +55,10 @@ public class Sharpland {
             int offset = height * stride * index;
             buffer = sharedMemory.CreateBuffer(shmPool, offset, width, height, stride, SharedMemoryFormat.WL_SHM_FORMAT_XRGB8888);
         }
+
+        surface.Attach(buffer, 0, 0);
+        surface.Damage();
+        surface.Commit();
     }
 
     public Sharpland() : this(null) {}
