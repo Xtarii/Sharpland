@@ -16,8 +16,6 @@ const struct wl_interface * wrapper_wl_compositor_interface() { return &wl_compo
 const struct wl_interface * wrapper_wl_subcompositor_interface() { return &wl_subcompositor_interface; }
 const struct wl_interface * wrapper_wl_seat_interface() { return &wl_seat_interface; }
 const struct wl_interface * wrapper_wl_shm_interface() { return &wl_shm_interface; }
-const struct wl_interface * wrapper_xdg_wm_base_interface() { return &xdg_wm_base_interface; }
-const struct wl_interface * wrapper_xdg_decoration_manager_interface() { return &xdg_decoration_manager_interface; }
 
 
 

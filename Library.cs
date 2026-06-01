@@ -1,6 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using Sharpland.wayland;
 using Sharpland.wayland.enums;
+using Sharpland.xdg;
 
 namespace Sharpland;
 
@@ -16,12 +17,14 @@ public class Sharpland {
     private WaylandDisplay display;
     private WaylandRegistry registry;
 
-    private WaylandSurface surface;
+    private XDGSurface surface;
 
     private WaylandCompositor? compositor;
     private WaylandSharedMemory? sharedMemory;
     private IntPtr shmPool;
     private IntPtr buffer;
+
+    private XDGBase @base = null!;
 
 
 
@@ -44,8 +47,8 @@ public class Sharpland {
             if(compositor == null || sharedMemory == null)
                 throw new Exception("No compositor or SHM");
 
-            surface = new(compositor);
-            Console.WriteLine("Surface created");
+            surface = new(compositor, @base);
+            Console.WriteLine("Surface created!");
 
             int fd = AllocSHM(shm_pool_size);
             void * pool = sharedMemory.Map(fd, shm_pool_size);
@@ -125,6 +128,9 @@ public class Sharpland {
             instance.compositor = new(instance.registry, name, 1);
         } else if(@interface == "wl_shm") {
             instance.sharedMemory = new(instance.registry, name, 1);
+
+        } else if(@interface == "xdg_wm_base") {
+            instance.@base = new(instance.registry, name, 1);
 
         } else {
             Console.WriteLine($"UNSET INTERFACE: {@interface}");

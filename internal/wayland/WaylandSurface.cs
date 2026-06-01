@@ -5,7 +5,7 @@ namespace Sharpland.wayland;
 /// <summary>
 /// Wayland surface object wrapper
 /// </summary>
-internal partial class WaylandSurface : IDisposable {
+internal abstract partial class WaylandSurface : IDisposable {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_compositor_create_surface(IntPtr compositor);
     [LibraryImport(Wayland.WRAPPER)]
