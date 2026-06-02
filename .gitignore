@@ -1,19 +1,7 @@
 #
-# Test files for building the library
-# They are not needed - I  used them to help get Wayland to work in C++
-# before making a wrapper.
-#
-# -   g++ main.cpp -o main -lwayland-client -lwayland-cursor
-#
-main.cpp
-main
-extra.hpp
-
-
-
-#
 # Editor
 #
+
 .vscode/
 
 
@@ -21,6 +9,7 @@ extra.hpp
 #
 # Library files
 #
+
 lib/*
 bin/
 obj/
