@@ -17,3 +17,4 @@ struct xdg_surface * wrapper_xdg_wm_base_get_xdg_surface(struct xdg_wm_base *xdg
 int wrapper_xdg_surface_add_listener(struct xdg_surface *xdg_surface, const struct xdg_surface_listener *listener, void *data) { return xdg_surface_add_listener(xdg_surface, listener, data); }
 int wrapper_xdg_wm_base_add_listener(struct xdg_wm_base *xdg_wm_base, const struct xdg_wm_base_listener *listener, void *data) { return xdg_wm_base_add_listener(xdg_wm_base, listener, data); }
 void wrapper_xdg_wm_base_pong(struct xdg_wm_base *xdg_wm_base, uint32_t serial) { xdg_wm_base_pong(xdg_wm_base, serial); }
+void wrapper_xdg_surface_ack_configure(struct xdg_surface *xdg_surface, uint32_t serial) { xdg_surface_ack_configure(xdg_surface, serial); }

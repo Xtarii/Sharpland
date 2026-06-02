@@ -14,9 +14,13 @@ public class Sharpland {
 
 
     private GCHandle instance;
-    private WaylandDisplay display;
 
+
+
+    private WaylandDisplay display;
     public void Dispatch() => display.Dispatch();
+
+
 
     private WaylandRegistry registry;
 
@@ -52,7 +56,12 @@ public class Sharpland {
             if(compositor == null || sharedMemory == null)
                 throw new Exception("No compositor or SHM");
 
+            XDG.XDGSurfaceListener surfaceListener = new() {
+                Configure = &Configure
+            };
+
             surface = new(compositor, @base);
+            surface.AddListener(&surfaceListener, GCHandle.ToIntPtr(instance).ToPointer());
             Console.WriteLine("Surface created!");
 
             int fd = AllocSHM(shm_pool_size);
@@ -163,5 +172,10 @@ public class Sharpland {
 
         Console.WriteLine("OK end");
         instance.@base.Pong(serial);
+    }
+
+
+
+    static unsafe void Configure(void *data, IntPtr surface, uint serial) {
     }
 }
