@@ -208,10 +208,7 @@ public class Sharpland {
 
         for(int y = 0; y < height; ++y) {
             for(int x = 0; x < width; ++x) {
-                if ((x + y / 8 * 8) % 16 < 8)
-                    data[y * width + x] = 0xFF666666;
-                else
-                    data[y * width + x] = 0xFFEEEEEE;
+                data[y * width + x] = 0xFF333343;
             }
         }
 
