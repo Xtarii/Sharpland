@@ -18,3 +18,5 @@ int wrapper_xdg_surface_add_listener(struct xdg_surface *xdg_surface, const stru
 int wrapper_xdg_wm_base_add_listener(struct xdg_wm_base *xdg_wm_base, const struct xdg_wm_base_listener *listener, void *data) { return xdg_wm_base_add_listener(xdg_wm_base, listener, data); }
 void wrapper_xdg_wm_base_pong(struct xdg_wm_base *xdg_wm_base, uint32_t serial) { xdg_wm_base_pong(xdg_wm_base, serial); }
 void wrapper_xdg_surface_ack_configure(struct xdg_surface *xdg_surface, uint32_t serial) { xdg_surface_ack_configure(xdg_surface, serial); }
+struct xdg_toplevel * wrapper_xdg_surface_get_toplevel(struct xdg_surface *xdg_surface) { return xdg_surface_get_toplevel(xdg_surface); }
+void wrapper_xdg_toplevel_set_title(struct xdg_toplevel *xdg_toplevel, const char *title) { xdg_toplevel_set_title(xdg_toplevel, title); }
