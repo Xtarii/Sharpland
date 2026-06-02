@@ -22,13 +22,6 @@ internal partial class WaylandSharedMemory {
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_munmap(void * src, int len);
 
-    [LibraryImport(Wayland.WRAPPER)]
-    private static partial IntPtr wrapper_wl_shm_create_pool(IntPtr shm, int file, ulong size);
-    [LibraryImport(Wayland.WRAPPER)]
-    private static partial IntPtr wrapper_wl_shm_pool_create_buffer(IntPtr pool, int offset, int width, int height, int stride, uint format);
-    [LibraryImport(Wayland.WRAPPER)]
-    private static partial void wrapper_wl_shm_pool_destroy(IntPtr pool);
-
 
 
 
@@ -143,42 +136,4 @@ internal partial class WaylandSharedMemory {
     /// <param name="n">Amount of bytes to set to <c>c</c></param>
     /// <returns>Result</returns>
     internal unsafe void * SetMemory(void *src, int c, ulong n) => wrapper_memset(src, c, n);
-
-
-
-    /// <summary>
-    /// Creates a shared memory pool object
-    /// </summary>
-    /// <param name="file">Shared memory object file descriptor</param>
-    /// <param name="size">Shared memory object size</param>
-    /// <returns>A pointer to a memory pool</returns>
-    internal IntPtr CreatePool(int file, ulong size) {
-        IntPtr res = wrapper_wl_shm_create_pool(Instance, file, size);
-        if(res == IntPtr.Zero)
-            throw new ExternalException("Failed to create shared memory pool.");
-        return res;
-    }
-
-    /// <summary>
-    /// Creates a shared memory pool buffer object
-    /// </summary>
-    /// <param name="pool">Shared memory pool object</param>
-    /// <param name="offset">Buffer offset</param>
-    /// <param name="width">Buffer width</param>
-    /// <param name="height">Buffer height</param>
-    /// <param name="stride">Buffer stride</param>
-    /// <param name="format">Buffer format</param>
-    /// <returns>A pointer to a pool buffer</returns>
-    internal IntPtr CreateBuffer(IntPtr pool, int offset, int width, int height, int stride, SharedMemoryFormat format) {
-        IntPtr res = wrapper_wl_shm_pool_create_buffer(pool, offset, width, height, stride, (uint)format);
-        if(res == IntPtr.Zero)
-            throw new ExternalException("Failed to create shared memory pool buffer.");
-        return res;
-    }
-
-    /// <summary>
-    /// Destroys shared memory pool object
-    /// </summary>
-    /// <param name="pool">Pool object to destroy</param>
-    internal void DestroyPool(IntPtr pool) => wrapper_wl_shm_pool_destroy(pool);
 }

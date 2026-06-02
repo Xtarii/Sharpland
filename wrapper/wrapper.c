@@ -65,4 +65,6 @@ int wrapper_munmap(void * src, int len) { return munmap(src, len); }
 struct wl_shm_pool * wrapper_wl_shm_create_pool(struct wl_shm *wl_shm, int fd, unsigned long size) { return wl_shm_create_pool(wl_shm, fd, size); }
 struct wl_buffer * wrapper_wl_shm_pool_create_buffer(struct wl_shm_pool *wl_shm_pool, int32_t offset, int32_t width, int32_t height, int32_t stride, uint32_t format) { return wl_shm_pool_create_buffer(wl_shm_pool, offset, width, height, stride, format); }
 void wrapper_wl_shm_pool_destroy(struct wl_shm_pool *wl_shm_pool) { wl_shm_pool_destroy(wl_shm_pool); }
+
 int wrapper_wl_buffer_add_listener(struct wl_buffer *wl_buffer, const struct wl_buffer_listener *listener, void *data) { return wl_buffer_add_listener(wl_buffer, listener, data); }
+void wrapper_wl_buffer_destroy(struct wl_buffer *wl_buffer) { wl_buffer_destroy(wl_buffer); }
