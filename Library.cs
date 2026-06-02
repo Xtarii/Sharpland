@@ -18,7 +18,7 @@ public class Sharpland {
 
 
     private WaylandDisplay display;
-    public void Dispatch() => display.Dispatch();
+    public int Dispatch() => display.Dispatch();
 
 
 
@@ -27,13 +27,14 @@ public class Sharpland {
     private XDGSurface surface;
 
     private WaylandCompositor? compositor;
-    private WaylandSharedMemory? sharedMemory;
-    private IntPtr shmPool;
-    private IntPtr buffer;
+    private WaylandSharedMemory sharedMemory = null!;
 
     private XDGBase @base = null!;
 
     private XDG.XDGBaseListener baseListener;
+    private XDG.XDGSurfaceListener surfaceListener;
+
+    private XDGTopLevel topLevel;
 
 
 
@@ -56,25 +57,22 @@ public class Sharpland {
             if(compositor == null || sharedMemory == null)
                 throw new Exception("No compositor or SHM");
 
-            XDG.XDGSurfaceListener surfaceListener = new() {
+
+
+            surfaceListener = new() {
                 Configure = &Configure
             };
 
-            surface = new(compositor, @base);
-            surface.AddListener(&surfaceListener, GCHandle.ToIntPtr(instance).ToPointer());
-            Console.WriteLine("Surface created!");
-
-            int fd = AllocSHM(shm_pool_size);
-            void * pool = sharedMemory.Map(fd, shm_pool_size);
-            shmPool = sharedMemory.CreatePool(fd, shm_pool_size);
-
-            int index = 0;
-            int offset = height * stride * index;
-            buffer = sharedMemory.CreateBuffer(shmPool, offset, width, height, stride, SharedMemoryFormat.WL_SHM_FORMAT_XRGB8888);
+            fixed(XDG.XDGSurfaceListener * sl = &surfaceListener) {
+                surface = new(compositor, @base);
+                surface.AddListener(sl, GCHandle.ToIntPtr(instance).ToPointer());
+                Console.WriteLine("Surface created!");
+            }
         }
 
-        surface.Attach(buffer, 0, 0);
-        surface.Damage();
+        topLevel = new(surface) {
+            Title = "Test Window"
+        };
         surface.Commit();
     }
 
@@ -163,19 +161,61 @@ public class Sharpland {
 
 
     static unsafe void Ping(void *data, IntPtr @base, uint serial) {
-
-        Console.WriteLine("OK bef");
-
         IntPtr ptr = new(data);
         Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
         if(instance == null) return;
 
-        Console.WriteLine("OK end");
+
+
         instance.@base.Pong(serial);
     }
 
 
 
     static unsafe void Configure(void *data, IntPtr surface, uint serial) {
+        IntPtr ptr = new(data);
+        Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
+        if(instance == null) return;
+
+
+
+        instance.surface.AckConfigure(serial);
+
+        IntPtr buffer = DrawFrame(instance);
+        instance.surface.Attach(buffer, 0, 0);
+        instance.surface.Commit();
+    }
+
+
+
+
+
+    public unsafe static IntPtr DrawFrame(Sharpland instance) {
+        const int width = 640, height = 480;
+        uint stride = width * 4;
+        uint size = stride * height;
+
+        int fd = instance.AllocSHM(size);
+        uint * data = (uint*)instance.sharedMemory.Map(fd, size);
+
+        IntPtr pool = instance.sharedMemory.CreatePool(fd, size);
+        IntPtr buffer = instance.sharedMemory.CreateBuffer(pool, 0, width, height, (int)stride, SharedMemoryFormat.WL_SHM_FORMAT_XRGB8888);
+        instance.sharedMemory.DestroyPool(pool);
+        instance.sharedMemory.Close(fd);
+
+        for(int y = 0; y < height; ++y) {
+            for(int x = 0; x < width; ++x) {
+                if ((x + y / 8 * 8) % 16 < 8)
+                    data[y * width + x] = 0xFF666666;
+                else
+                    data[y * width + x] = 0xFFEEEEEE;
+            }
+        }
+
+        instance.sharedMemory.MunMap(data, (int)size);
+
+        // wl_buffer_add_listener(buffer, &wl_buffer_listener, NULL);
+
+        return buffer;
     }
 }

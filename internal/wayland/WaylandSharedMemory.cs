@@ -19,6 +19,8 @@ internal partial class WaylandSharedMemory {
     private static unsafe partial void * wrapper_mmap(int file, ulong size);
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial void * wrapper_memset(void * src, int c, ulong n);
+    [LibraryImport(Wayland.WRAPPER)]
+    private static unsafe partial int wrapper_munmap(void * src, int len);
 
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_shm_create_pool(IntPtr shm, int file, ulong size);
@@ -114,6 +116,22 @@ internal partial class WaylandSharedMemory {
         void * res = wrapper_mmap(file, size);
         if(res == null)
             throw new AccessViolationException("Failed to memory map.");
+        return res;
+    }
+
+    /// <summary>
+    /// Deallocate any mapping for the region starting
+    /// at <c>src</c> and extending <c>length</c> bytes.
+    /// <para/>
+    /// Returns 0 if successful, -1 for errors.
+    /// </summary>
+    /// <param name="src">Source address</param>
+    /// <param name="length">Length to deallocate in bytes</param>
+    /// <returns>Deallocation status</returns>
+    internal unsafe int MunMap(void *src, int length) {
+        int res = wrapper_munmap(src, length);
+        if(res < 0)
+            throw new AccessViolationException("Failed to deallocate memory.");
         return res;
     }
 
