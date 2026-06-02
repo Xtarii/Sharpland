@@ -9,6 +9,8 @@ namespace Sharpland.xdg;
 internal partial class XDGBase {
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_xdg_wm_base_add_listener(IntPtr @base, XDG.XDGBaseListener *listener, void *data);
+    [LibraryImport(Wayland.WRAPPER)]
+    private static partial void wrapper_xdg_wm_base_pong(IntPtr @base, uint serial);
 
 
 
@@ -49,4 +51,13 @@ internal partial class XDGBase {
         int res = wrapper_xdg_wm_base_add_listener(Instance, listener, data);
         return res;
     }
+
+    /// <summary>
+    /// Responds to a XDG base event ( ping ) with pong
+    /// <para/>
+    /// A client must respond to a ping event with a pong request
+    /// or the client may be deemed unresponsive.
+    /// </summary>
+    /// <param name="serial">Pong serial value</param>
+    public void Pong(uint serial) => wrapper_xdg_wm_base_pong(Instance, serial);
 }

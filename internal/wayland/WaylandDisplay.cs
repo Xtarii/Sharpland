@@ -17,6 +17,8 @@ internal partial class WaylandDisplay : IDisposable {
     private static partial int wl_display_roundtrip(IntPtr display);
     [LibraryImport(Wayland.LIBRARY)]
     private static partial int wl_display_flush(IntPtr display);
+    [LibraryImport(Wayland.LIBRARY)]
+    private static partial int wl_display_dispatch(IntPtr display);
 
 
 
@@ -85,6 +87,22 @@ internal partial class WaylandDisplay : IDisposable {
     /// <returns>Flush status</returns>
     public int Flush() {
         int res = wl_display_flush(Instance);
+        return res;
+    }
+
+    /// <summary>
+    /// Dispatch the display’s main event queue.
+    /// <para/>
+    /// If the main event queue is empty, this function blocks until
+    /// there are events to be read from the display file descriptor.
+    /// Events are read and queued on the appropriate event queues.
+    /// Finally, events on the main event queue are dispatched.
+    /// </summary>
+    /// <returns>The number of dispatched events on success</returns>
+    public int Dispatch() {
+        int res = wl_display_dispatch(Instance);
+        if(res < 0)
+            throw new ExternalException("Failed to dispatch main event queue.");
         return res;
     }
 }

@@ -15,6 +15,9 @@ public class Sharpland {
 
     private GCHandle instance;
     private WaylandDisplay display;
+
+    public void Dispatch() => display.Dispatch();
+
     private WaylandRegistry registry;
 
     private XDGSurface surface;
@@ -25,6 +28,8 @@ public class Sharpland {
     private IntPtr buffer;
 
     private XDGBase @base = null!;
+
+    private XDG.XDGBaseListener baseListener;
 
 
 
@@ -70,6 +75,7 @@ public class Sharpland {
 
 
 
+#region SHM Allocation
     public int OpenSHM() {
         if(sharedMemory == null) throw new Exception("No memory object created.");
 
@@ -103,6 +109,7 @@ public class Sharpland {
 
         return ret;
     }
+#endregion
 
 
 
@@ -132,9 +139,29 @@ public class Sharpland {
         } else if(@interface == "xdg_wm_base") {
             instance.@base = new(instance.registry, name, 1);
 
+            // Add listener
+            instance.baseListener = new() { Ping = &Ping };
+            fixed(XDG.XDGBaseListener *listener = &instance.baseListener) {
+                instance.@base.AddListener(listener, data);
+            }
+
         } else {
             Console.WriteLine($"UNSET INTERFACE: {@interface}");
         }
     }
     static unsafe void Remove(void *data, IntPtr registry, uint name) {}
+
+
+
+    static unsafe void Ping(void *data, IntPtr @base, uint serial) {
+
+        Console.WriteLine("OK bef");
+
+        IntPtr ptr = new(data);
+        Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
+        if(instance == null) return;
+
+        Console.WriteLine("OK end");
+        instance.@base.Pong(serial);
+    }
 }
