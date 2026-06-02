@@ -5,5 +5,21 @@ Sharpland \- C# wrapper of Wayland
 .SH DESCRIPTION
 Wrapper of Wayland client for C#
 
+.SH EXAMPLE
+.RS
+.nf
+.eo
+
+/* This works for the time being - it will be remade to allow customization. */
+Sharpland.Sharpland sharpland = new();
+
+while(sharpland.Dispatch() > 0);
+
+sharpland.Destroy();
+
+.ec
+.fi
+.RE
+
 .SH AUTHOR
 Written by Xtarii
