@@ -47,7 +47,7 @@ public class Sharpland {
 
         // Adds listener
         unsafe {
-            Wayland.Listener listener = new() {
+            Wayland.RegistryListener listener = new() {
                 Global = &Global,
                 GlobalRemove = &Remove
             };

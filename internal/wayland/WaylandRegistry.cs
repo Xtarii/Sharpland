@@ -9,7 +9,7 @@ internal partial class WaylandRegistry {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_display_get_registry(IntPtr display);
     [LibraryImport(Wayland.WRAPPER)]
-    private static unsafe partial int wrapper_wl_registry_add_listener(IntPtr registry, Wayland.Listener *listener, void *data);
+    private static unsafe partial int wrapper_wl_registry_add_listener(IntPtr registry, Wayland.RegistryListener *listener, void *data);
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_registry_bind(IntPtr wl_registry, uint name, IntPtr @interface, uint version);
 
@@ -49,7 +49,7 @@ internal partial class WaylandRegistry {
     /// <param name="listener">Registry event listener object</param>
     /// <param name="data">Data to send with events</param>
     /// <returns>Add listener status</returns>
-    public unsafe int AddListener(Wayland.Listener *listener, void *data) {
+    public unsafe int AddListener(Wayland.RegistryListener *listener, void *data) {
         int res = wrapper_wl_registry_add_listener(Instance, listener, data);
         return res;
     }

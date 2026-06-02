@@ -7,7 +7,7 @@ namespace Sharpland.wayland;
 /// </summary>
 internal partial class WaylandBuffer {
     [LibraryImport(Wayland.WRAPPER)]
-    private static unsafe partial int wrapper_wl_buffer_add_listener(IntPtr buffer, IntPtr listener, void *data);
+    private static unsafe partial int wrapper_wl_buffer_add_listener(IntPtr buffer, Wayland.BufferListener *listener, void *data);
 
 
 
