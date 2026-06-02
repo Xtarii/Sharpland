@@ -29,6 +29,9 @@ public class Sharpland {
     private WaylandCompositor? compositor;
     private WaylandSharedMemory sharedMemory = null!;
 
+    private WaylandBuffer buffer = null!;
+    private Wayland.BufferListener bufferListener;
+
     private XDGBase @base = null!;
 
     private XDG.XDGBaseListener baseListener;
@@ -66,7 +69,6 @@ public class Sharpland {
             fixed(XDG.XDGSurfaceListener * sl = &surfaceListener) {
                 surface = new(compositor, @base);
                 surface.AddListener(sl, GCHandle.ToIntPtr(instance).ToPointer());
-                Console.WriteLine("Surface created!");
             }
         }
 
@@ -114,7 +116,7 @@ public class Sharpland {
             throw new Exception("Failed to truncate memory.");
         }
 
-        return ret;
+        return fd;
     }
 #endregion
 
@@ -125,6 +127,7 @@ public class Sharpland {
     public void Destroy() {
         surface.Dispose();
         display.Dispose();
+        instance.Free();
     }
 
 
@@ -181,8 +184,8 @@ public class Sharpland {
 
         instance.surface.AckConfigure(serial);
 
-        IntPtr buffer = DrawFrame(instance);
-        instance.surface.Attach(buffer, 0, 0);
+        instance.buffer = DrawFrame(instance, data);
+        instance.surface.Attach(instance.buffer.Instance, 0, 0);
         instance.surface.Commit();
     }
 
@@ -190,7 +193,7 @@ public class Sharpland {
 
 
 
-    public unsafe static IntPtr DrawFrame(Sharpland instance) {
+    internal unsafe static WaylandBuffer DrawFrame(Sharpland instance, void *d) {
         const int width = 640, height = 480;
         uint stride = width * 4;
         uint size = stride * height;
@@ -198,9 +201,9 @@ public class Sharpland {
         int fd = instance.AllocSHM(size);
         uint * data = (uint*)instance.sharedMemory.Map(fd, size);
 
-        IntPtr pool = instance.sharedMemory.CreatePool(fd, size);
-        IntPtr buffer = instance.sharedMemory.CreateBuffer(pool, 0, width, height, (int)stride, SharedMemoryFormat.WL_SHM_FORMAT_XRGB8888);
-        instance.sharedMemory.DestroyPool(pool);
+        WaylandSharedMemoryPool pool = new(instance.sharedMemory, fd, size);
+        WaylandBuffer buffer = pool.CreateBuffer(0, width, height, (int)stride, SharedMemoryFormat.WL_SHM_FORMAT_XRGB8888);
+        pool.Dispose();
         instance.sharedMemory.Close(fd);
 
         for(int y = 0; y < height; ++y) {
@@ -214,8 +217,24 @@ public class Sharpland {
 
         instance.sharedMemory.MunMap(data, (int)size);
 
-        // wl_buffer_add_listener(buffer, &wl_buffer_listener, NULL);
+        instance.bufferListener = new() {
+            Release = &DestroyBuffer
+        };
+
+        fixed(Wayland.BufferListener *listener = &instance.bufferListener) {
+            buffer.AddListener(listener, d);
+        }
 
         return buffer;
+    }
+
+
+
+    public static unsafe void DestroyBuffer(void *data, IntPtr buffer) {
+        IntPtr ptr = new(data);
+        Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
+        if(instance == null) return;
+
+        instance.buffer.Dispose();
     }
 }
