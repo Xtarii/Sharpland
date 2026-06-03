@@ -57,7 +57,7 @@ internal abstract class WaylandObject : IDisposable {
     /// <param name="instance">Object native instance</param>
     /// <typeparam name="T">Type of object expected</typeparam>
     /// <returns>The expected object as type of <typeparamref name="T"/></returns>
-    internal static T GetInstanceOf<T>(IntPtr instance) {
+    protected internal static T GetInstanceOf<T>(IntPtr instance) {
         object obj = _registry[instance];
         return (T)obj;
     }
