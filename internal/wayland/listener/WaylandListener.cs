@@ -9,6 +9,13 @@ namespace Sharpland.wayland.listener;
 /// </summary>
 internal abstract class WaylandListener<L> where L : unmanaged {
     /// <summary>
+    /// List of object listeners
+    /// </summary>
+    private readonly List<L> _listeners = [];
+
+
+
+    /// <summary>
     /// Adds a listener to this Wayland object
     /// <para/>
     /// This will add a listener to the Wayland object
