@@ -6,23 +6,26 @@ namespace Sharpland.wayland.listener;
 /// Wayland objects that uses events
 /// for communication should extend
 /// this abstract class.
+/// <para/>
+/// <typeparamref name="L"/> is the type of listener that Wayland uses to communicate.
 /// </summary>
 /// <param name="instance">Native wayland object instance</param>
+/// <typeparam name="L">Native listener structure type</typeparam>
 internal abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(instance) where L : unmanaged {
     /// <summary>
     /// List of object listeners
     /// </summary>
-    private readonly List<L> _listeners = [];
+    private readonly List<L> __nativeListeners = [];
 
 
 
     /// <inheritdoc cref="AddListener(L*, void*)"/>
     /// <returns>The id of the listener object in the reference list</returns>
     protected internal unsafe int AddListener(L listener, void *data) {
-        int id = _listeners.Count;
-        _listeners.Add(listener);
+        int id = __nativeListeners.Count;
+        __nativeListeners.Add(listener);
 
-        fixed(L *ptr = &_listeners.ToArray()[id]) {
+        fixed(L *ptr = &__nativeListeners.ToArray()[id]) {
             AddListener(ptr, data);
         }
 

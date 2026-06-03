@@ -7,13 +7,17 @@ namespace Sharpland.wayland.registry;
 /// <summary>
 /// Wayland registry object wrapper
 /// </summary>
-internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListener> {
+internal partial class WaylandRegistry : WaylandListener<WaylandRegistry.RegistryCallback, Wayland.RegistryListener> {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_display_get_registry(IntPtr display);
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_wl_registry_add_listener(IntPtr registry, Wayland.RegistryListener *listener, void *data);
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_registry_bind(IntPtr wl_registry, uint name, IntPtr @interface, uint version);
+
+
+
+    public delegate void RegistryCallback();
 
 
 
@@ -37,15 +41,6 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
 
 
 
-
-
-
-
-
-    internal unsafe int Add(Wayland.RegistryListener l, void *d) => AddListener(l, d);
-
-
-
     /// <summary>
     /// Binds a new, client-created object to the server using the
     /// specified name as the identifier.
@@ -56,6 +51,19 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
     public IntPtr Bind(IntPtr @interface, uint name, uint version) {
         return wrapper_wl_registry_bind(Instance, name, @interface, version);
     }
+
+
+
+
+
+    internal unsafe int Add(Wayland.RegistryListener l, void *d) => AddListener(l, d);
+
+
+
+    public unsafe void AddListener(RegistryCallback callback, void *data) {
+    }
+
+
 
 
 
