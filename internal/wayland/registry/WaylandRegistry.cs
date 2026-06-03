@@ -39,11 +39,6 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
 
 
 
-    protected internal sealed unsafe override void AddListener(Wayland.RegistryListener *listener, void *data) {
-        int res = wrapper_wl_registry_add_listener(Instance, listener, data);
-        if(res < 0)
-            throw new AccessViolationException("Could not add listener to Wayland object.");
-    }
 
 
 
@@ -63,6 +58,12 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
     }
 
 
+
+    protected internal sealed unsafe override void AddListener(Wayland.RegistryListener *listener, void *data) {
+        int res = wrapper_wl_registry_add_listener(Instance, listener, data);
+        if(res < 0)
+            throw new AccessViolationException("Could not add listener to Wayland object.");
+    }
 
     protected override void OnDispose() { /* Do nothing as there is no dispose object */ }
 }
