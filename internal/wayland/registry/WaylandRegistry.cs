@@ -17,7 +17,10 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
 
 
 
-    public delegate void RegistryCallback();
+    public unsafe delegate void RegistryCallback(void *data, WaylandRegistry registry, uint name, string @interface, uint version);
+    public unsafe delegate void RegistryRemoveCallback(void *data, WaylandRegistry registry, uint name);
+    private event RegistryCallback? onGlobal;
+    private event RegistryRemoveCallback? onRemove;
 
 
 
@@ -56,11 +59,28 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
 
 
 
-    internal unsafe int Add(Wayland.RegistryListener l, void *d) => AddListener(l, d);
+    public unsafe void AddListener(RegistryCallback onGlobal, RegistryRemoveCallback onRemove, void *data) {
+        if(NativeListenersCount <= 0) {
+            Wayland.RegistryListener listener = new() {
+                Global = &Global,
+                GlobalRemove = &Remove
+            };
+            AddListener(listener, data);
+        }
 
+        this.onGlobal += onGlobal;
+        this.onRemove += onRemove;
+    }
 
+    static unsafe void Global(void *data, IntPtr registry, uint name, IntPtr i, uint version) {
+        WaylandRegistry instance = GetInstanceOf<WaylandRegistry>(registry);
+        string @interface = Marshal.PtrToStringAnsi(i)!;
+        instance.onGlobal?.Invoke(data, instance, name, @interface, version);
+    }
 
-    public unsafe void AddListener(RegistryCallback callback, void *data) {
+    static unsafe void Remove(void *data, IntPtr registry, uint name) {
+        WaylandRegistry instance = GetInstanceOf<WaylandRegistry>(registry);
+        instance.onRemove?.Invoke(data, instance, name);
     }
 
 

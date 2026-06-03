@@ -55,11 +55,7 @@ public class Sharpland {
 
         // Adds listener
         unsafe {
-            Wayland.RegistryListener listener = new() {
-                Global = &Global,
-                GlobalRemove = &Remove
-            };
-            registry.AddListener(listener, GCHandle.ToIntPtr(instance).ToPointer());
+            registry.AddListener(Global, Remove, GCHandle.ToIntPtr(instance).ToPointer());
 
             display.RoundTrip();
             if(compositor == null || sharedMemory == null)
@@ -137,13 +133,10 @@ public class Sharpland {
 
 
 
-    static unsafe void Global(void *data, IntPtr registry, uint name, IntPtr i, uint version) {
+    static unsafe void Global(void *data, WaylandRegistry registry, uint name, string @interface, uint version) {
         IntPtr ptr = new(data);
         Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
-        string? @interface = Marshal.PtrToStringAnsi(i);
-
-        if(@interface == null || instance == null) return;
-
+        if(instance == null) return;
 
 
         if(@interface == "wl_compositor") {
@@ -164,7 +157,7 @@ public class Sharpland {
             Console.WriteLine($"UNSET INTERFACE: {@interface}");
         }
     }
-    static unsafe void Remove(void *data, IntPtr registry, uint name) {}
+    static unsafe void Remove(void *data, WaylandRegistry registry, uint name) {}
 
 
 
