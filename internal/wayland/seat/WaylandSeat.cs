@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Sharpland.wayland;
+namespace Sharpland.wayland.seat;
 
 /// <summary>
 /// Wayland seat object wrapper

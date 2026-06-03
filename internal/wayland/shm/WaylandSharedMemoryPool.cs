@@ -1,7 +1,8 @@
 using System.Runtime.InteropServices;
+using Sharpland.wayland.buffer;
 using Sharpland.wayland.enums;
 
-namespace Sharpland.wayland;
+namespace Sharpland.wayland.shm;
 
 /// <summary>
 /// Wayland shared memory pool object wrapper

@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
+using Sharpland.wayland.registry;
 
-namespace Sharpland.wayland;
+namespace Sharpland.wayland.renderer;
 
 /// <summary>
 /// Wayland compositor object wrapper

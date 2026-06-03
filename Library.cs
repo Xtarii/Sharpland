@@ -1,7 +1,12 @@
 ﻿using System.Runtime.InteropServices;
 using Sharpland.wayland;
+using Sharpland.wayland.buffer;
 using Sharpland.wayland.enums;
+using Sharpland.wayland.registry;
+using Sharpland.wayland.renderer;
+using Sharpland.wayland.shm;
 using Sharpland.xdg;
+using Sharpland.xdg.surface;
 
 namespace Sharpland;
 

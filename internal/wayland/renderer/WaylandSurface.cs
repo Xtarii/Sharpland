@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Sharpland.wayland;
+namespace Sharpland.wayland.renderer;
 
 /// <summary>
 /// Wayland surface object wrapper

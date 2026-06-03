@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using Sharpland.wayland;
 
-namespace Sharpland.xdg;
+namespace Sharpland.xdg.surface;
 
 /// <summary>
 /// XDG top level object wrapper

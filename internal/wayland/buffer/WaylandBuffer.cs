@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Sharpland.wayland;
+namespace Sharpland.wayland.buffer;
 
 /// <summary>
 /// Wayland buffer object wrapper
