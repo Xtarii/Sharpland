@@ -54,4 +54,11 @@ internal abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(inst
     /// <param name="listener">Wayland listener object</param>
     /// <param name="data">Data to send between events</param>
     protected internal abstract unsafe void AddListener(L *listener, void *data);
+
+
+
+    /// <summary>
+    /// Count of native listener objects registered on this object
+    /// </summary>
+    protected internal int NativeListenersCount => __nativeListeners.Count;
 }
