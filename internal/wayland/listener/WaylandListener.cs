@@ -7,7 +7,7 @@ namespace Sharpland.wayland.listener;
 /// for communication should extend
 /// this abstract class.
 /// </summary>
-internal abstract class WaylandListener<L> where L : unmanaged {
+internal abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(instance) where L : unmanaged {
     /// <summary>
     /// List of object listeners
     /// </summary>

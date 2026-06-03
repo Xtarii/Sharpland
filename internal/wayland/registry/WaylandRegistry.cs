@@ -20,13 +20,6 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
 
 
     /// <summary>
-    /// Wayland registry instance
-    /// </summary>
-    internal IntPtr Instance { get; private set; }
-
-
-
-    /// <summary>
     /// Creates registry instance
     /// <para/>
     /// The <paramref name="display"/> is the parent display of
@@ -37,8 +30,7 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
     /// This is thrown if there was an error getting the
     /// wayland registry from the display object.
     /// </exception>
-    public WaylandRegistry(WaylandDisplay display) {
-        Instance = wrapper_wl_display_get_registry(display.Instance);
+    public WaylandRegistry(WaylandDisplay display) : base(wrapper_wl_display_get_registry(display.Instance)) {
         if(Instance == IntPtr.Zero)
             throw new ExternalException($"Failed to get registry from display: {display}");
     }
@@ -74,4 +66,8 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
     public IntPtr Bind(IntPtr @interface, uint name, uint version) {
         return wrapper_wl_registry_bind(Instance, name, @interface, version);
     }
+
+
+
+    protected override void OnDispose() { /* Do nothing as there is no dispose object */ }
 }
