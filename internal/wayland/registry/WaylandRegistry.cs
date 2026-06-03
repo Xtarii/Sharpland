@@ -39,20 +39,15 @@ internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListene
 
 
 
-    protected sealed unsafe override void AddListener(Wayland.RegistryListener *listener, void *data) {
-
-        // Add custom listener to Wayland backend
-
-
+    protected internal sealed unsafe override void AddListener(Wayland.RegistryListener *listener, void *data) {
         int res = wrapper_wl_registry_add_listener(Instance, listener, data);
         if(res < 0)
             throw new AccessViolationException("Could not add listener to Wayland object.");
     }
 
 
-    /// <inheritdoc cref="AddListener(Wayland.RegistryListener*, void*)"/>
-    internal unsafe void AddListener(Wayland.RegistryListener *l, void *d, bool t)
-        => AddListener(l, d);
+
+    internal unsafe int Add(Wayland.RegistryListener l, void *d) => AddListener(l, d);
 
 
 

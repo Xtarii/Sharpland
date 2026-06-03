@@ -16,6 +16,21 @@ internal abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(inst
 
 
 
+    /// <inheritdoc cref="AddListener(L*, void*)"/>
+    /// <returns>The id of the listener object in the reference list</returns>
+    protected internal unsafe int AddListener(L listener, void *data) {
+        int id = _listeners.Count;
+        _listeners.Add(listener);
+
+        fixed(L *ptr = &_listeners.ToArray()[id]) {
+            AddListener(ptr, data);
+        }
+
+        return id;
+    }
+
+
+
     /// <summary>
     /// Adds a listener to this Wayland object
     /// <para/>
@@ -35,5 +50,5 @@ internal abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(inst
     /// </summary>
     /// <param name="listener">Wayland listener object</param>
     /// <param name="data">Data to send between events</param>
-    protected abstract unsafe void AddListener(L *listener, void *data);
+    protected internal abstract unsafe void AddListener(L *listener, void *data);
 }
