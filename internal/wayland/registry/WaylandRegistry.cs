@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Sharpland.wayland.listener;
 using Sharpland.wayland.renderer;
 
 namespace Sharpland.wayland.registry;
@@ -6,7 +7,7 @@ namespace Sharpland.wayland.registry;
 /// <summary>
 /// Wayland registry object wrapper
 /// </summary>
-internal partial class WaylandRegistry {
+internal partial class WaylandRegistry : WaylandListener<Wayland.RegistryListener> {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_display_get_registry(IntPtr display);
     [LibraryImport(Wayland.WRAPPER)]
@@ -44,16 +45,20 @@ internal partial class WaylandRegistry {
 
 
 
-    /// <summary>
-    /// Adds listener to registry events
-    /// </summary>
-    /// <param name="listener">Registry event listener object</param>
-    /// <param name="data">Data to send with events</param>
-    /// <returns>Add listener status</returns>
-    public unsafe int AddListener(Wayland.RegistryListener *listener, void *data) {
+
+
+    protected unsafe override void AddListener(Wayland.RegistryListener *listener, void *data) {
         int res = wrapper_wl_registry_add_listener(Instance, listener, data);
-        return res;
+        if(res < 0)
+            throw new AccessViolationException("Could not add listener to Wayland object.");
     }
+
+
+    /// <inheritdoc cref="AddListener(Wayland.RegistryListener*, void*)"/>
+    internal unsafe void AddListener(Wayland.RegistryListener *l, void *d, bool t)
+        => AddListener(l, d);
+
+
 
     /// <summary>
     /// Binds a new, client-created object to the server using the

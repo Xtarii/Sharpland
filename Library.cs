@@ -59,7 +59,7 @@ public class Sharpland {
                 Global = &Global,
                 GlobalRemove = &Remove
             };
-            registry.AddListener(&listener, GCHandle.ToIntPtr(instance).ToPointer());
+            registry.AddListener(&listener, GCHandle.ToIntPtr(instance).ToPointer(), false);
 
             display.RoundTrip();
             if(compositor == null || sharedMemory == null)
