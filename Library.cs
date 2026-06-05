@@ -27,11 +27,11 @@ public class Sharpland {
 
 
 
-    private WaylandRegistry registry;
+    private WaylandRegistry<GCHandle> registry;
 
     private XDGSurface surface;
 
-    private WaylandCompositor? compositor;
+    private WaylandCompositor compositor = null!;
     private WaylandSharedMemory sharedMemory = null!;
 
     private WaylandBuffer buffer = null!;
@@ -49,13 +49,21 @@ public class Sharpland {
     public Sharpland(string? name) {
         instance = GCHandle.Alloc(this);
         display = new(name);
-        registry = display.GetRegistry();
+        registry = display.GetRegistry(ref instance);
 
 
 
         // Adds listener
         unsafe {
-            registry.AddListener(Global, Remove, GCHandle.ToIntPtr(instance).ToPointer());
+            // int t = 0;
+            // registry.Test((ptr, registry, name, @interface, version) => {
+
+            //     int *data = (int*)ptr;
+            //     *data += 5;
+
+            // }, ref t);
+
+            // registry.AddListener(Global, Remove, GCHandle.ToIntPtr(instance).ToPointer());
 
             display.RoundTrip();
             if(compositor == null || sharedMemory == null)
@@ -133,19 +141,19 @@ public class Sharpland {
 
 
 
-    static unsafe void Global(void *data, WaylandRegistry registry, uint name, string @interface, uint version) {
+    static unsafe void Global(void *data, WaylandRegistry<GCHandle> registry, uint name, string @interface, uint version) {
         IntPtr ptr = new(data);
         Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
         if(instance == null) return;
 
 
         if(@interface == "wl_compositor") {
-            instance.compositor = new(instance.registry, name, 1);
+            instance.compositor = WaylandCompositor.Create(instance.registry, name, 1);
         } else if(@interface == "wl_shm") {
-            instance.sharedMemory = new(instance.registry, name, 1);
+            instance.sharedMemory = WaylandSharedMemory.Create(instance.registry, name, 1);
 
         } else if(@interface == "xdg_wm_base") {
-            instance.@base = new(instance.registry, name, 1);
+            instance.@base = XDGBase.Create(instance.registry, name, 1);
 
             // Add listener
             instance.baseListener = new() { Ping = &Ping };
@@ -157,7 +165,7 @@ public class Sharpland {
             Console.WriteLine($"UNSET INTERFACE: {@interface}");
         }
     }
-    static unsafe void Remove(void *data, WaylandRegistry registry, uint name) {}
+    static unsafe void Remove(void *data, WaylandRegistry<GCHandle> registry, uint name) {}
 
 
 

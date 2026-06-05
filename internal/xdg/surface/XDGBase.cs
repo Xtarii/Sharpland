@@ -7,7 +7,7 @@ namespace Sharpland.xdg.surface;
 /// <summary>
 /// XDG base object wrapper
 /// </summary>
-internal partial class XDGBase {
+internal partial class XDGBase : WaylandObject {
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_xdg_wm_base_add_listener(IntPtr @base, XDG.XDGBaseListener *listener, void *data);
     [LibraryImport(Wayland.WRAPPER)]
@@ -18,20 +18,10 @@ internal partial class XDGBase {
 
 
     /// <summary>
-    /// XDG base object instance
-    /// </summary>
-    internal IntPtr Instance { get; private set; }
-
-
-
-    /// <summary>
     /// Creates a XDG base object
     /// </summary>
-    /// <param name="registry">Wayland registry</param>
-    /// <param name="name">XDG interface name</param>
-    /// <param name="version">XDG interface version</param>
-    internal XDGBase(WaylandRegistry registry, uint name, uint version) {
-        Instance = registry.Bind(XDGInterface.Base(), name, version);
+    /// <param name="instance">XDG base instance</param>
+    private XDGBase(IntPtr instance) : base(instance) {
         if(Instance == IntPtr.Zero)
             throw new ExternalException("Failed to create XDG base interface.");
     }
@@ -61,4 +51,24 @@ internal partial class XDGBase {
     /// </summary>
     /// <param name="serial">Pong serial value</param>
     public void Pong(uint serial) => wrapper_xdg_wm_base_pong(Instance, serial);
+
+
+
+    protected override void OnDispose() { /* Do nothing */ }
+
+
+
+
+
+    /// <summary>
+    /// Creates a XDG base object
+    /// </summary>
+    /// <param name="registry">Wayland registry</param>
+    /// <param name="name">XDG interface name</param>
+    /// <param name="version">XDG interface version</param>
+    /// <returns>XDG base object</returns>
+    internal static XDGBase Create<T>(WaylandRegistry<T> registry, uint name, uint version) where T : unmanaged {
+        IntPtr instance = registry.Bind(XDGInterface.Base(), name, version);
+        return new(instance);
+    }
 }

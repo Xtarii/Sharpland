@@ -66,7 +66,10 @@ internal partial class WaylandDisplay : IDisposable {
     /// <summary>
     /// Gets wayland registry object from this display
     /// </summary>
-    public WaylandRegistry GetRegistry() => new(this);
+    /// <param name="data">Data to use in the registry events</param>
+    /// <typeparam name="T">Type of data to use in the registry events</typeparam>
+    /// <returns>Wayland registry object</returns>
+    public WaylandRegistry<T> GetRegistry<T>(ref T data) where T : unmanaged => new(this, ref data);
 
     /// <summary>
     /// Blocks until the server process all currently issued

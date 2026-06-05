@@ -6,7 +6,7 @@ namespace Sharpland.wayland.shm;
 /// <summary>
 /// Wayland shared memory object wrapper
 /// </summary>
-internal partial class WaylandSharedMemory {
+internal partial class WaylandSharedMemory : WaylandObject {
     [LibraryImport(Wayland.WRAPPER, StringMarshalling = StringMarshalling.Utf8)]
     private static partial int wrapper_shm_open(string name);
     [LibraryImport(Wayland.WRAPPER, StringMarshalling = StringMarshalling.Utf8)]
@@ -27,24 +27,17 @@ internal partial class WaylandSharedMemory {
 
 
     /// <summary>
-    /// Wayland shared memory object instance
-    /// </summary>
-    internal IntPtr Instance { get; private set; }
-
-
-
-    /// <summary>
     /// Creates shared memory object for Wayland
     /// </summary>
-    /// <param name="registry">Wayland registry object</param>
-    /// <param name="name">Shared memory interface name</param>
-    /// <param name="version">Shared memory interface version</param>
-    internal WaylandSharedMemory(WaylandRegistry registry, uint name, uint version) {
-        IntPtr @interface = WaylandInterface.SHM();
-        Instance = registry.Bind(@interface, name, version);
+    /// <param name="instance">Wayland SHM instance</param>
+    private WaylandSharedMemory(IntPtr instance) : base(instance) {
         if(Instance == IntPtr.Zero)
             throw new ExternalException("Failed to create shared memory for Wayland.");
     }
+
+
+
+    protected override void OnDispose() { /* Do nothing */ }
 
 
 
@@ -136,4 +129,22 @@ internal partial class WaylandSharedMemory {
     /// <param name="n">Amount of bytes to set to <c>c</c></param>
     /// <returns>Result</returns>
     internal unsafe void * SetMemory(void *src, int c, ulong n) => wrapper_memset(src, c, n);
+
+
+
+
+
+    /// <summary>
+    /// Creates new Wayland shared memory object
+    /// </summary>
+    /// <param name="registry">Wayland registry</param>
+    /// <param name="name">SHM name</param>
+    /// <param name="version">SHM version</param>
+    /// <typeparam name="T">Type of data used in the registry</typeparam>
+    /// <returns>Wayland SHM object</returns>
+    internal static WaylandSharedMemory Create<T>(WaylandRegistry<T> registry, uint name, uint version) where T : unmanaged {
+        IntPtr @interface = WaylandInterface.SHM();
+        IntPtr instance = registry.Bind(@interface, name, version);
+        return new(instance);
+    }
 }
