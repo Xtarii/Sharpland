@@ -57,14 +57,6 @@ public class Sharpland {
 
         // Adds listener
         unsafe {
-            // int t = 0;
-            // registry.Test((ptr, registry, name, @interface, version) => {
-
-            //     int *data = (int*)ptr;
-            //     *data += 5;
-
-            // }, ref t);
-
             registry.AddListener(Global, Remove, ref instance);
 
             display.RoundTrip();
