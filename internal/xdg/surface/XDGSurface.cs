@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using Sharpland.assembly.wayland;
+using Sharpland.assembly.wayland.listener;
 using Sharpland.assembly.wayland.renderer;
 
 namespace Sharpland.assembly.xdg.surface;
@@ -7,7 +8,7 @@ namespace Sharpland.assembly.xdg.surface;
 /// <summary>
 /// XDG surface object wrapper
 /// </summary>
-internal partial class XDGSurface : WaylandSurface {
+internal partial class XDGSurface : WaylandListener<XDG.XDGSurfaceListener> {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_xdg_wm_base_get_xdg_surface(IntPtr XDGBase, IntPtr surface);
     [LibraryImport(Wayland.WRAPPER)]
@@ -20,38 +21,36 @@ internal partial class XDGSurface : WaylandSurface {
 
 
     /// <summary>
-    /// XDG surface instance
+    /// Wayland surface object
     /// </summary>
-    internal IntPtr XDGInstance { get; private set; }
+    public WaylandSurface Surface { get; private set; }
 
 
 
     /// <summary>
     /// Creates a XDG surface object
     /// </summary>
-    /// <param name="compositor">Wayland compositor object</param>
+    /// <param name="surface">Wayland surface object</param>
     /// <param name="base">XDG base interface object</param>
-    internal XDGSurface(WaylandCompositor compositor, XDGBase @base) : base(compositor) {
-        XDGInstance = wrapper_xdg_wm_base_get_xdg_surface(@base.Instance, Instance);
-        if(XDGInstance == IntPtr.Zero)
+    internal XDGSurface(WaylandSurface surface, XDGBase @base) : base(wrapper_xdg_wm_base_get_xdg_surface(@base.Instance, surface.Instance)) {
+        Surface = surface;
+        if(Instance == IntPtr.Zero)
             throw new ExternalException("Failed to create a XDG instance.");
     }
 
 
 
-    /// <summary>
-    /// Adds XDG surface object event listener
-    /// <para/>
-    /// The <paramref name="data"/> parameter specifies
-    /// the data to send between events.
-    /// </summary>
-    /// <param name="listener">Listener object</param>
-    /// <param name="data">Data to send in the events</param>
-    /// <returns>Add listener status</returns>
-    public unsafe int AddListener(XDG.XDGSurfaceListener *listener, void *data) {
-        int res = wrapper_xdg_surface_add_listener(XDGInstance, listener, data);
-        return res;
+    protected override void OnDispose() { /* Do nothing */ }
+
+
+
+    protected internal override unsafe void AddListener(XDG.XDGSurfaceListener *listener, void *data) {
+        int res = wrapper_xdg_surface_add_listener(Instance, listener, data);
+        if(res < 0)
+            throw new AccessViolationException("Could not add listener to Wayland object.");
     }
+
+
 
     /// <summary>
     /// When a configure event is received, if a client commits the
@@ -75,5 +74,5 @@ internal partial class XDGSurface : WaylandSurface {
     /// event the client really is responding to.
     /// </summary>
     /// <param name="serial">Serial value</param>
-    public void AckConfigure(uint serial) => wrapper_xdg_surface_ack_configure(XDGInstance, serial);
+    public void AckConfigure(uint serial) => wrapper_xdg_surface_ack_configure(Instance, serial);
 }

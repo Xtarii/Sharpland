@@ -8,6 +8,7 @@ using Sharpland.assembly.xdg.surface;
 using Sharpland.wayland;
 using Sharpland.wayland.enums;
 using Sharpland.wayland.registry;
+using Sharpland.wayland.surface;
 
 namespace Sharpland;
 
@@ -74,7 +75,7 @@ public class Sharpland {
             };
 
             fixed(XDG.XDGSurfaceListener * sl = &surfaceListener) {
-                surface = new(compositor, @base);
+                surface = new(new Surface(compositor), @base);
                 surface.AddListener(sl, GCHandle.ToIntPtr(instance).ToPointer());
             }
         }
@@ -82,7 +83,7 @@ public class Sharpland {
         topLevel = new(surface) {
             Title = "Test Window"
         };
-        surface.Commit();
+        surface.Surface.Commit();
     }
 
 
@@ -187,8 +188,8 @@ public class Sharpland {
         instance.surface.AckConfigure(serial);
 
         instance.buffer = DrawFrame(instance, data);
-        instance.surface.Attach(instance.buffer.Instance, 0, 0);
-        instance.surface.Commit();
+        instance.surface.Surface.Attach(instance.buffer.Instance, 0, 0);
+        instance.surface.Surface.Commit();
     }
 
 

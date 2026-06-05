@@ -6,7 +6,7 @@ namespace Sharpland.assembly.wayland.renderer;
 /// <summary>
 /// Wayland compositor object wrapper
 /// </summary>
-internal class WaylandCompositor : WaylandObject {
+public class WaylandCompositor : WaylandObject {
     /// <summary>
     /// Creates Wayland compositor object
     /// </summary>

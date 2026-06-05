@@ -5,7 +5,7 @@ namespace Sharpland.assembly.wayland.renderer;
 /// <summary>
 /// Wayland surface object wrapper
 /// </summary>
-internal abstract partial class WaylandSurface : WaylandObject {
+public abstract partial class WaylandSurface : WaylandObject {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_compositor_create_surface(IntPtr compositor);
     [LibraryImport(Wayland.WRAPPER)]
