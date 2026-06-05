@@ -1,4 +1,4 @@
-namespace Sharpland.wayland.listener;
+namespace Sharpland.assembly.wayland.listener;
 
 /// <summary>
 /// Wayland listener object
@@ -10,7 +10,7 @@ namespace Sharpland.wayland.listener;
 /// </summary>
 /// <param name="data">Data to send with each event</param>
 /// <typeparam name="L">Native listener object type</typeparam>
-internal unsafe abstract class WaylandListenerObject<L>(void *data) where L : unmanaged {
+public unsafe abstract class WaylandListenerObject<L>(void *data) where L : unmanaged {
     /// <summary>
     /// Instance data that is sent with each event
     /// </summary>
@@ -52,7 +52,7 @@ internal unsafe abstract class WaylandListenerObject<L>(void *data) where L : un
 
 /// <inheritdoc cref="WaylandListenerObject{L}"/>
 /// <typeparam name="T"><c>C# event listener</c> object type</typeparam>
-internal unsafe class WaylandListenerObject<L, T>(void *data) : WaylandListenerObject<L>(data) where L : unmanaged where T : Delegate {
+public unsafe class WaylandListenerObject<L, T>(void *data) : WaylandListenerObject<L>(data) where L : unmanaged where T : Delegate {
     /// <summary>
     /// <c>C# listeners</c> for the underlying <c>Wayland</c> events.
     /// </summary>
@@ -66,7 +66,7 @@ internal unsafe class WaylandListenerObject<L, T>(void *data) : WaylandListenerO
 /// listener object for communication
 /// </summary>
 /// <typeparam name="K"><c>C# event listener</c> object type for secondary events</typeparam>
-internal unsafe class WaylandListenerObject<L, T, K>(void *data) : WaylandListenerObject<L, T>(data) where L : unmanaged where T : Delegate where K : Delegate {
+public unsafe class WaylandListenerObject<L, T, K>(void *data) : WaylandListenerObject<L, T>(data) where L : unmanaged where T : Delegate where K : Delegate {
     /// <summary>
     /// <c>C# listeners</c> for the underlying <c>Wayland</c> events
     /// </summary>

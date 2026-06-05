@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
-using Sharpland.wayland.registry;
+using Sharpland.assembly.wayland.registry;
 
-namespace Sharpland.wayland.renderer;
+namespace Sharpland.assembly.wayland.renderer;
 
 /// <summary>
 /// Wayland compositor object wrapper
@@ -30,9 +30,8 @@ internal class WaylandCompositor : WaylandObject {
     /// <param name="registry">Wayland registry instance</param>
     /// <param name="name">Compositor name</param>
     /// <param name="version">Compositor version</param>
-    /// <typeparam name="T">Type of data to use in registry</typeparam>
     /// <returns>Wayland compositor instance</returns>
-    internal static WaylandCompositor Create<T>(WaylandRegistry<T> registry, uint name, uint version) where T : unmanaged {
+    internal static WaylandCompositor Create(WaylandRegistry registry, uint name, uint version) {
         IntPtr @interface = WaylandInterface.Compositor();
         IntPtr Instance = registry.Bind(@interface, name, version);
         return new(Instance);

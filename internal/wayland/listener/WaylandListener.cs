@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Sharpland.wayland.listener;
+namespace Sharpland.assembly.wayland.listener;
 
 /// <summary>
 /// Wayland listener object
@@ -13,7 +13,7 @@ namespace Sharpland.wayland.listener;
 /// </summary>
 /// <param name="instance">Native wayland object instance</param>
 /// <typeparam name="L">Native listener structure type</typeparam>
-internal abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(instance) where L : unmanaged {
+public abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(instance) where L : unmanaged {
     /// <summary>
     /// Dictionary of listener objects
     /// <para/>
@@ -138,26 +138,26 @@ internal abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(inst
 
 
 /// <inheritdoc cref="WaylandListener{L}(IntPtr)"/>
-/// <typeparam name="T">Type of event callback</typeparam>
-internal abstract class WaylandListener<L, T>(IntPtr instance) : WaylandListener<L>(instance) where L : unmanaged where T : Delegate {
+/// <typeparam name="E">Type of event callback</typeparam>
+public interface IWaylandListener<E> where E : Delegate {
     /// <summary>
     /// Adds listener to this <c>Wayland object</c>
     /// <para/>
     /// A callback is invoked when <c>Wayland</c> invokes a
-    /// callback on this object. The <typeparamref name="D"/> specifies
+    /// callback on this object. The <typeparamref name="T"/> specifies
     /// what data is expected to be used in each event.
     /// </summary>
     /// <param name="listener">Event listener callback</param>
     /// <param name="data">Data to use in the event</param>
-    /// <typeparam name="D">Type of data</typeparam>
-    public abstract void AddListener<D>(T listener, ref D data) where D : unmanaged;
+    /// <typeparam name="T">Type of data</typeparam>
+    public abstract void AddListener<T>(E listener, ref T data) where T : unmanaged;
 }
 
-/// <inheritdoc cref="WaylandListener{L, T}(IntPtr)"/>
+/// <inheritdoc cref="IWaylandListener{E}"/>
 /// <typeparam name="K">Type of secondary event listener</typeparam>
-internal abstract class WaylandListener<L, T, K>(IntPtr instance) : WaylandListener<L>(instance) where L : unmanaged where T : Delegate where K : Delegate {
+public interface IWaylandListener<E, K> where E : Delegate where K : Delegate {
     /// <summary>
-    /// <inheritdoc cref="WaylandListener{L, T}.AddListener{D}(T, ref D)"/>
+    /// <inheritdoc cref="IWaylandListener{E}.AddListener{T}(E, ref T)"/>
     /// <para/>
     /// The secondary event may be used as a cleanup event
     /// by <c>Wayland</c> in some cases. But is is not
@@ -167,6 +167,6 @@ internal abstract class WaylandListener<L, T, K>(IntPtr instance) : WaylandListe
     /// <param name="first">Main event listener</param>
     /// <param name="second">Secondary event listener</param>
     /// <param name="data">Data to use in the event</param>
-    /// <typeparam name="D">Type of data</typeparam>
-    public abstract void AddListener<D>(T first, K second, ref D data) where D : unmanaged;
+    /// <typeparam name="T">Type of data</typeparam>
+    public abstract void AddListener<T>(E first, K second, ref T data) where T : unmanaged;
 }

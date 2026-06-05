@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Sharpland.wayland;
+namespace Sharpland.assembly.wayland;
 
 /// <summary>
 /// Wayland interface wrapper

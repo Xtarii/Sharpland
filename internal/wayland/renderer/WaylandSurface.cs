@@ -1,11 +1,11 @@
 using System.Runtime.InteropServices;
 
-namespace Sharpland.wayland.renderer;
+namespace Sharpland.assembly.wayland.renderer;
 
 /// <summary>
 /// Wayland surface object wrapper
 /// </summary>
-internal abstract partial class WaylandSurface : IDisposable {
+internal abstract partial class WaylandSurface : WaylandObject {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_compositor_create_surface(IntPtr compositor);
     [LibraryImport(Wayland.WRAPPER)]
@@ -22,18 +22,10 @@ internal abstract partial class WaylandSurface : IDisposable {
 
 
     /// <summary>
-    /// Wayland surface object instance
-    /// </summary>
-    internal IntPtr Instance { get; private set; }
-
-
-
-    /// <summary>
     /// Creates Wayland surface object
     /// </summary>
     /// <param name="compositor">Wayland compositor object</param>
-    internal WaylandSurface(WaylandCompositor compositor) {
-        Instance = wrapper_wl_compositor_create_surface(compositor.Instance);
+    internal WaylandSurface(WaylandCompositor compositor) : base(wrapper_wl_compositor_create_surface(compositor.Instance)) {
         if(Instance == IntPtr.Zero)
             throw new ExternalException("Failed to create Wayland surface.");
     }
@@ -42,7 +34,7 @@ internal abstract partial class WaylandSurface : IDisposable {
 
 
 
-    public void Dispose() => wrapper_wl_surface_destroy(Instance);
+    protected override void OnDispose() => wrapper_wl_surface_destroy(Instance);
 
 
 

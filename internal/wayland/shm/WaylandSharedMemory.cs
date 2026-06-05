@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
-using Sharpland.wayland.registry;
+using Sharpland.assembly.wayland.registry;
 
-namespace Sharpland.wayland.shm;
+namespace Sharpland.assembly.wayland.shm;
 
 /// <summary>
 /// Wayland shared memory object wrapper
@@ -140,9 +140,8 @@ internal partial class WaylandSharedMemory : WaylandObject {
     /// <param name="registry">Wayland registry</param>
     /// <param name="name">SHM name</param>
     /// <param name="version">SHM version</param>
-    /// <typeparam name="T">Type of data used in the registry</typeparam>
     /// <returns>Wayland SHM object</returns>
-    internal static WaylandSharedMemory Create<T>(WaylandRegistry<T> registry, uint name, uint version) where T : unmanaged {
+    internal static WaylandSharedMemory Create(WaylandRegistry registry, uint name, uint version) {
         IntPtr @interface = WaylandInterface.SHM();
         IntPtr instance = registry.Bind(@interface, name, version);
         return new(instance);

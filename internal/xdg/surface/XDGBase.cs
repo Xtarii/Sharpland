@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
-using Sharpland.wayland;
-using Sharpland.wayland.registry;
+using Sharpland.assembly.wayland;
+using Sharpland.assembly.wayland.registry;
 
-namespace Sharpland.xdg.surface;
+namespace Sharpland.assembly.xdg.surface;
 
 /// <summary>
 /// XDG base object wrapper
@@ -67,7 +67,7 @@ internal partial class XDGBase : WaylandObject {
     /// <param name="name">XDG interface name</param>
     /// <param name="version">XDG interface version</param>
     /// <returns>XDG base object</returns>
-    internal static XDGBase Create<T>(WaylandRegistry<T> registry, uint name, uint version) where T : unmanaged {
+    internal static XDGBase Create(WaylandRegistry registry, uint name, uint version) {
         IntPtr instance = registry.Bind(XDGInterface.Base(), name, version);
         return new(instance);
     }

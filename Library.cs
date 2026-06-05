@@ -1,12 +1,12 @@
 ﻿using System.Runtime.InteropServices;
+using Sharpland.assembly.wayland;
+using Sharpland.assembly.wayland.buffer;
+using Sharpland.assembly.wayland.renderer;
+using Sharpland.assembly.wayland.shm;
+using Sharpland.assembly.xdg;
+using Sharpland.assembly.xdg.surface;
 using Sharpland.wayland;
-using Sharpland.wayland.buffer;
 using Sharpland.wayland.enums;
-using Sharpland.wayland.registry;
-using Sharpland.wayland.renderer;
-using Sharpland.wayland.shm;
-using Sharpland.xdg;
-using Sharpland.xdg.surface;
 
 namespace Sharpland;
 
@@ -22,12 +22,14 @@ public class Sharpland {
 
 
 
-    private WaylandDisplay display;
+    private Display display;
     public int Dispatch() => display.Dispatch();
 
 
 
-    private WaylandRegistry<GCHandle> registry;
+    private Registry<GCHandle> registry;
+
+
 
     private XDGSurface surface;
 
@@ -46,7 +48,7 @@ public class Sharpland {
 
 
 
-    public Sharpland(string? name) {
+    public Sharpland(string name) {
         instance = GCHandle.Alloc(this);
         display = new(name);
         registry = display.GetRegistry(ref instance);
@@ -63,7 +65,7 @@ public class Sharpland {
 
             // }, ref t);
 
-            // registry.AddListener(Global, Remove, GCHandle.ToIntPtr(instance).ToPointer());
+            registry.AddListener(Global, Remove, ref instance);
 
             display.RoundTrip();
             if(compositor == null || sharedMemory == null)
@@ -87,7 +89,7 @@ public class Sharpland {
         surface.Commit();
     }
 
-    public Sharpland() : this(null) {}
+    public Sharpland() : this("Test display") {}
 
 
 
@@ -141,9 +143,8 @@ public class Sharpland {
 
 
 
-    static unsafe void Global(void *data, WaylandRegistry<GCHandle> registry, uint name, string @interface, uint version) {
-        IntPtr ptr = new(data);
-        Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
+    static unsafe void Global(GCHandle data, Registry<GCHandle> registry, uint name, string @interface, uint version) {
+        Sharpland? instance = (Sharpland?)data.Target;
         if(instance == null) return;
 
 
@@ -158,14 +159,15 @@ public class Sharpland {
             // Add listener
             instance.baseListener = new() { Ping = &Ping };
             fixed(XDG.XDGBaseListener *listener = &instance.baseListener) {
-                instance.@base.AddListener(listener, data);
+                instance.@base.AddListener(listener, GCHandle.ToIntPtr(data).ToPointer());
             }
 
         } else {
             Console.WriteLine($"UNSET INTERFACE: {@interface}");
         }
     }
-    static unsafe void Remove(void *data, WaylandRegistry<GCHandle> registry, uint name) {}
+
+    static void Remove(GCHandle data, Registry<GCHandle> registry, uint name) {}
 
 
 

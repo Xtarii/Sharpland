@@ -1,4 +1,4 @@
-namespace Sharpland.wayland;
+namespace Sharpland.assembly.wayland;
 
 /// <summary>
 /// Wayland object
@@ -7,7 +7,7 @@ namespace Sharpland.wayland;
 /// a native pointer to it's real instance
 /// which Wayland uses to communicate.
 /// </summary>
-internal abstract class WaylandObject : IDisposable {
+public abstract class WaylandObject : IDisposable {
     /// <summary>
     /// Wayland instance pointer
     /// </summary>

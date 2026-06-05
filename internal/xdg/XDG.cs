@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Sharpland.xdg;
+namespace Sharpland.assembly.xdg;
 
 /// <summary>
 /// Wayland XDG wrapper
@@ -19,8 +19,8 @@ internal static class XDG {
         /// <para/>
         /// The configure event marks the end of a configure sequence. A
         /// configure sequence is a set of one or more events configuring
-        /// the state of the <see cref="XDGSurface"/>, including the final
-        /// <c>XDGSurface configure</c> event.
+        /// the state of the <see cref="surface.XDGSurface"/>, including
+        /// the final <c>XDGSurface configure</c> event.
         /// <para/>
         /// Where applicable, <c>XDGSurface</c> surface roles will during a
         /// configure sequence extend this event as a latched state sent as

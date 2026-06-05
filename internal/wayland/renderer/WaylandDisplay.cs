@@ -1,7 +1,6 @@
 using System.Runtime.InteropServices;
-using Sharpland.wayland.registry;
 
-namespace Sharpland.wayland.renderer;
+namespace Sharpland.assembly.wayland.renderer;
 
 /// <summary>
 /// Wayland display object wrapper
@@ -9,7 +8,7 @@ namespace Sharpland.wayland.renderer;
 /// A wrapper for the native wayland
 /// display object.
 /// </summary>
-internal partial class WaylandDisplay : IDisposable {
+public abstract partial class WaylandDisplay : WaylandObject {
     [LibraryImport(Wayland.LIBRARY, StringMarshalling = StringMarshalling.Utf8)]
     private static partial IntPtr wl_display_connect(string? name);
     [LibraryImport(Wayland.LIBRARY)]
@@ -22,13 +21,6 @@ internal partial class WaylandDisplay : IDisposable {
     private static partial int wl_display_dispatch(IntPtr display);
 
 
-
-
-
-    /// <summary>
-    /// Wayland display instance
-    /// </summary>
-    internal IntPtr Instance { get; private set; }
 
 
 
@@ -49,27 +41,18 @@ internal partial class WaylandDisplay : IDisposable {
     /// This is thrown if there was an error creating the display. Typically this
     /// is because of an invalid <paramref name="name"/> being passed.
     /// </exception>
-    internal WaylandDisplay(string? name) {
-        Instance = wl_display_connect(name);
+    internal WaylandDisplay(string? name) : base(wl_display_connect(name)) {
         if(Instance == IntPtr.Zero)
             throw new ExternalException("Failed to setup a Wayland connection.");
     }
 
 
 
-    public void Dispose() {
+    protected override void OnDispose() {
         wl_display_disconnect(Instance);
     }
 
 
-
-    /// <summary>
-    /// Gets wayland registry object from this display
-    /// </summary>
-    /// <param name="data">Data to use in the registry events</param>
-    /// <typeparam name="T">Type of data to use in the registry events</typeparam>
-    /// <returns>Wayland registry object</returns>
-    public WaylandRegistry<T> GetRegistry<T>(ref T data) where T : unmanaged => new(this, ref data);
 
     /// <summary>
     /// Blocks until the server process all currently issued

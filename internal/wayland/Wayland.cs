@@ -1,11 +1,11 @@
 using System.Runtime.InteropServices;
 
-namespace Sharpland.wayland;
+namespace Sharpland.assembly.wayland;
 
 /// <summary>
 /// Wayland global configs
 /// </summary>
-internal static class Wayland {
+public static class Wayland {
     /// <summary>
     /// Wayland library path
     /// </summary>
@@ -24,27 +24,27 @@ internal static class Wayland {
     /// Wayland registry listener object
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal unsafe struct RegistryListener {
+    public unsafe struct RegistryListener {
         /// <summary>
         /// Announce global object
         /// <para/>
         /// Notify the client of global objects.
         /// </summary>
-        public delegate*<void*, IntPtr, uint, IntPtr, uint, void> Global;
+        internal delegate*<void*, IntPtr, uint, IntPtr, uint, void> Global;
 
         /// <summary>
         /// Announce removal of global object
         /// <para/>
         /// Notify the client of removed global objects.
         /// </summary>
-        public delegate*<void*, IntPtr, uint, void> GlobalRemove;
+        internal delegate*<void*, IntPtr, uint, void> GlobalRemove;
     }
 
     /// <summary>
     /// Wayland buffer event listener object
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal struct BufferListener {
+    public struct BufferListener {
         /// <summary>
         /// compositor releases buffer
         /// <para/>

@@ -1,11 +1,11 @@
 using System.Runtime.InteropServices;
 
-namespace Sharpland.wayland.buffer;
+namespace Sharpland.assembly.wayland.buffer;
 
 /// <summary>
 /// Wayland buffer object wrapper
 /// </summary>
-internal partial class WaylandBuffer : IDisposable {
+internal partial class WaylandBuffer : WaylandObject {
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_wl_buffer_add_listener(IntPtr buffer, Wayland.BufferListener *listener, void *data);
     [LibraryImport(Wayland.WRAPPER)]
@@ -16,19 +16,10 @@ internal partial class WaylandBuffer : IDisposable {
 
 
     /// <summary>
-    /// Wayland buffer object instance
-    /// </summary>
-    internal IntPtr Instance { get; private set; }
-
-
-
-    /// <summary>
     /// Creates a managed wayland buffer instance
     /// </summary>
     /// <param name="instance">Wayland buffer instance</param>
-    internal WaylandBuffer(IntPtr instance) {
-        Instance = instance;
-    }
+    internal WaylandBuffer(IntPtr instance) : base(instance) {}
 
 
 
@@ -49,5 +40,5 @@ internal partial class WaylandBuffer : IDisposable {
 
 
 
-    public void Dispose() => wrapper_wl_buffer_destroy(Instance);
+    protected override void OnDispose() => wrapper_wl_buffer_destroy(Instance);
 }

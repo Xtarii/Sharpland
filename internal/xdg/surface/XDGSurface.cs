@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
-using Sharpland.wayland;
-using Sharpland.wayland.renderer;
+using Sharpland.assembly.wayland;
+using Sharpland.assembly.wayland.renderer;
 
-namespace Sharpland.xdg.surface;
+namespace Sharpland.assembly.xdg.surface;
 
 /// <summary>
 /// XDG surface object wrapper

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
-using Sharpland.wayland;
+using Sharpland.assembly.wayland;
 
-namespace Sharpland.xdg;
+namespace Sharpland.assembly.xdg;
 
 /// <summary>
 /// Wayland XDG interface wrapper
