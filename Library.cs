@@ -48,9 +48,9 @@ public class Sharpland {
 
 
 
-    public Sharpland(string name) {
+    public Sharpland() {
         instance = GCHandle.Alloc(this);
-        display = new(name);
+        display = new();
         registry = display.GetRegistry(ref instance);
 
 
@@ -80,8 +80,6 @@ public class Sharpland {
         };
         surface.Commit();
     }
-
-    public Sharpland() : this("Test display") {}
 
 
 
