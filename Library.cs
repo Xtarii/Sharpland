@@ -7,6 +7,7 @@ using Sharpland.assembly.xdg;
 using Sharpland.assembly.xdg.surface;
 using Sharpland.wayland;
 using Sharpland.wayland.enums;
+using Sharpland.wayland.registry;
 
 namespace Sharpland;
 
@@ -51,17 +52,20 @@ public class Sharpland {
     public Sharpland() {
         instance = GCHandle.Alloc(this);
         display = new();
-        registry = display.GetRegistry(ref instance);
 
+        registry = display.GetRegistry(ref instance);
+        registry.AddListener(Global, Remove, ref instance);
+        display.RoundTrip();
+
+
+
+        if(compositor == null || sharedMemory == null)
+            throw new Exception("No compositor or SHM");
 
 
         // Adds listener
         unsafe {
-            registry.AddListener(Global, Remove, ref instance);
 
-            display.RoundTrip();
-            if(compositor == null || sharedMemory == null)
-                throw new Exception("No compositor or SHM");
 
 
 

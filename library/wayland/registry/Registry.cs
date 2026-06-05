@@ -1,10 +1,8 @@
 using System.Runtime.InteropServices;
 using Sharpland.assembly.wayland;
-using Sharpland.assembly.wayland.listener;
-using Sharpland.assembly.wayland.registry;
 using Sharpland.assembly.wayland.renderer;
 
-namespace Sharpland.wayland;
+namespace Sharpland.wayland.registry;
 
 /// <summary>
 /// Registry object
@@ -22,7 +20,7 @@ namespace Sharpland.wayland;
 /// Type of data to use in the registry global event
 /// listener. This data will be sent with each event.
 /// </typeparam>
-public class Registry<K> : WaylandRegistry, IWaylandListener<Registry<K>.Callback, Registry<K>.RemoveCallback> where K : unmanaged {
+public class Registry<K> : BaseRegistry<K> where K : unmanaged {
     /// <summary>
     /// This is called for each global registry event invoked
     /// by <c>Wayland</c> on the registry object.
@@ -50,17 +48,7 @@ public class Registry<K> : WaylandRegistry, IWaylandListener<Registry<K>.Callbac
                 Global = &Global,
                 GlobalRemove = &Remove
             };
-            AddListener<K, Callback, RemoveCallback>(listener, ref data);
-        }
-    }
-
-
-
-    public unsafe void AddListener<T>(Callback first, RemoveCallback second, ref T data) where T : unmanaged {
-        fixed(T *ptr = &data) {
-            WaylandListenerObject<Wayland.RegistryListener, Callback, RemoveCallback> obj = Listener<Callback, RemoveCallback>((uint)ptr);
-            obj.Events += first;
-            obj.SecondaryEvents += second;
+            AddListener(listener, ref data);
         }
     }
 
@@ -81,7 +69,7 @@ public class Registry<K> : WaylandRegistry, IWaylandListener<Registry<K>.Callbac
         string @interface = Marshal.PtrToStringAnsi(i)!;
 
         K *ptr = (K*)data;
-        Callback? events = instance.Listener<Callback, RemoveCallback>((uint)ptr).Events;
+        RegistryGlobal<K>? events = instance.Listener((uint)ptr).Events;
         events?.Invoke(*ptr, instance, name, @interface, version);
     }
 
@@ -95,7 +83,7 @@ public class Registry<K> : WaylandRegistry, IWaylandListener<Registry<K>.Callbac
         Registry<K> instance = GetInstanceOf<Registry<K>>(registry);
 
         K *ptr = (K*)data;
-        RemoveCallback? events = instance.Listener<Callback, RemoveCallback>((uint)ptr).SecondaryEvents;
+        RegistryGlobalRemove<K>? events = instance.Listener((uint)ptr).SecondaryEvents;
         events?.Invoke(*ptr, instance, name);
     }
 }

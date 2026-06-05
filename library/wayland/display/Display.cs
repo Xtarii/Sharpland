@@ -1,4 +1,5 @@
 using Sharpland.assembly.wayland.renderer;
+using Sharpland.wayland.registry;
 
 namespace Sharpland.wayland;
 

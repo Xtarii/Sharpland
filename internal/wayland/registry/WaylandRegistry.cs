@@ -7,7 +7,7 @@ namespace Sharpland.assembly.wayland.registry;
 /// <summary>
 /// Wayland registry object wrapper
 /// </summary>
-public abstract partial class WaylandRegistry : WaylandListener<Wayland.RegistryListener> {
+public abstract partial class WaylandRegistry : WaylandListener<Wayland.RegistryListener>, IWaylandListener<Wayland.RegistryListener> {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_wl_display_get_registry(IntPtr display);
     [LibraryImport(Wayland.WRAPPER)]
