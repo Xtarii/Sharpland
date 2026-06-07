@@ -37,7 +37,8 @@ public class XDGSurface<K> : XDGSurface, IWaylandListener<XDG.XDGSurfaceListener
             XDG.XDGSurfaceListener native = new() {
                 Configure = &Configure
             };
-            instance.SetNativeListener<WaylandListenerObject<XDG.XDGSurfaceListener, XDGSurfaceCallback<K>>, T>(native, ref data);
+            WaylandListenerObject<XDG.XDGSurfaceListener, XDGSurfaceCallback<K>> obj = new(native);
+            instance.SetNativeListener(obj, ref data);
         }
 
         fixed(T *ptr = &data) {

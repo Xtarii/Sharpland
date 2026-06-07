@@ -16,12 +16,9 @@ public abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(instan
 
 
 
-    unsafe void IWaylandListener<L>.SetNativeListener<K, T>(L listener, ref T data) {
+    unsafe void IWaylandListener<L>.SetNativeListener<K, T>(K listener, ref T data) {
         fixed(T *ptr = &data) {
-            ConstructorInfo? constructor = typeof(T).GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, [typeof(L), typeof(void*)]) ?? throw new ArgumentException("Type does not contain any constructor with valid argument - should be one \"void*\" argument");
-            K obj = (K)constructor.Invoke([listener, new IntPtr(ptr)]);
-            Listener = obj;
-
+            Listener = listener;
             AddListener(Listener.GetNativeListener(), ptr);
         }
     }

@@ -44,7 +44,8 @@ public class Registry<K> : WaylandRegistry, IWaylandListener<Wayland.RegistryLis
                 Global = &Global,
                 GlobalRemove = &Remove
             };
-            instance.SetNativeListener<WaylandListenerObject<Wayland.RegistryListener, RegistryGlobal<K>, RegistryGlobalRemove<K>>, T>(listener, ref data);
+            WaylandListenerObject<Wayland.RegistryListener, RegistryGlobal<K>, RegistryGlobalRemove<K>> obj = new(listener);
+            instance.SetNativeListener(obj, ref data);
         }
 
         fixed(T *ptr = &data) {

@@ -18,7 +18,7 @@ public interface IWaylandListener<L> where L : unmanaged {
     /// <param name="data">Data to use in the events</param>
     /// <typeparam name="K">Type of listener to use for events</typeparam>
     /// <typeparam name="T">Type of data to use in the events</typeparam>
-    protected internal void SetNativeListener<K, T>(L listener, ref T data) where K : WaylandListenerObject<L> where T : unmanaged;
+    protected internal void SetNativeListener<K, T>(K listener, ref T data) where K : WaylandListenerObject<L> where T : unmanaged;
 
     /// <summary>
     /// Simple check if object has a <c>Wayland</c> listener
