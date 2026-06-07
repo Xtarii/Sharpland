@@ -1,11 +1,12 @@
 using System.Runtime.InteropServices;
+using Sharpland.assembly.wayland.listener;
 
 namespace Sharpland.assembly.wayland.buffer;
 
 /// <summary>
 /// Wayland buffer object wrapper
 /// </summary>
-internal partial class WaylandBuffer : WaylandObject {
+public partial class WaylandBuffer : WaylandListener<Wayland.BufferListener> {
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_wl_buffer_add_listener(IntPtr buffer, Wayland.BufferListener *listener, void *data);
     [LibraryImport(Wayland.WRAPPER)]
@@ -23,19 +24,10 @@ internal partial class WaylandBuffer : WaylandObject {
 
 
 
-    /// <summary>
-    /// Adds listener to wayland buffer events
-    /// <para/>
-    /// The <paramref name="data"/> parameter specifies
-    /// the data used in the event and is transmitted
-    /// together when an event is invoked.
-    /// </summary>
-    /// <param name="listener">Listener object</param>
-    /// <param name="data">Data to use in the event</param>
-    /// <returns>Add listener status</returns>
-    public unsafe int AddListener(Wayland.BufferListener *listener, void *data) {
+    protected internal override unsafe void AddListener(Wayland.BufferListener *listener, void *data) {
         int res = wrapper_wl_buffer_add_listener(Instance, listener, data);
-        return res;
+        if(res < 0)
+            throw new ExternalException("Failed to set buffer listener object.");
     }
 
 

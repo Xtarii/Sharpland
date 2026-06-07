@@ -52,10 +52,10 @@ public static class Wayland {
         /// <para/>
         /// For more information on when release events may or may not be
         /// sent, and what consequences it has, please see the description
-        /// of <see cref="WaylandSurface.Attach(nint, int, int)"/>.
+        /// of <see cref="renderer.WaylandSurface.Attach(nint, int, int)"/>.
         /// <para/>
         /// If a client receives a release event before the frame callback
-        /// requested in the same <see cref="WaylandSurface.Commit"/> that
+        /// requested in the same <see cref="renderer.WaylandSurface.Commit"/> that
         /// attaches this <c>WaylandBuffer</c> to a surface, then the client is
         /// immediately free to reuse the buffer and its backing storage,
         /// and does not need a second buffer for the next surface content

@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Sharpland.assembly.wayland.buffer;
 using Sharpland.wayland.enums;
@@ -46,12 +47,16 @@ internal partial class WaylandSharedMemoryPool : IDisposable {
     /// <param name="height">Buffer height</param>
     /// <param name="stride">Buffer stride</param>
     /// <param name="format">Buffer format</param>
+    /// <typeparam name="T">Type of buffer to create</typeparam>
     /// <returns>Wayland buffer object</returns>
-    internal WaylandBuffer CreateBuffer(int offset, int width, int height, int stride, SharedMemoryFormat format) {
+    internal T CreateBuffer<T>(int offset, int width, int height, int stride, SharedMemoryFormat format) where T : WaylandBuffer {
         IntPtr buffer = wrapper_wl_shm_pool_create_buffer(Instance, offset, width, height, stride, (uint)format);
         if(buffer == IntPtr.Zero)
             throw new ExternalException("Failed to create shared memory pool buffer.");
-        return new(buffer);
+
+        ConstructorInfo? constructor = typeof(T).GetConstructor(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, [typeof(IntPtr)]) ?? throw new ArgumentException("Invalid buffer constructor. A valid constructor for the buffer was not found.");
+        T obj = (T)constructor.Invoke([buffer]);
+        return obj;
     }
 
 
