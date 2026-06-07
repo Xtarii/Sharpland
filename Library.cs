@@ -45,7 +45,6 @@ public class Sharpland {
     private XDGBase @base = null!;
 
     private XDG.XDGBaseListener baseListener;
-    private XDG.XDGSurfaceListener surfaceListener;
 
     private XDGTopLevel topLevel;
 
