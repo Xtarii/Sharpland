@@ -10,28 +10,23 @@ namespace Sharpland.assembly.wayland.listener;
 /// <param name="instance">Native wayland object instance</param>
 public abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(instance), IWaylandListener<L> where L : unmanaged {
     /// <summary>
-    /// Dictionary of listener objects
-    /// <para/>
-    /// Stored after instance data sent
-    /// with the event by <c>Wayland</c>
+    /// Listener object
     /// </summary>
-    protected internal readonly Dictionary<uint, WaylandListenerObject<L>> Listeners = [];
+    protected internal WaylandListenerObject<L>? Listener { get; private set; }
 
 
 
-    public unsafe int AddListener<T, D>(L listener, ref D data) where T : WaylandListenerObject<L> where D : unmanaged {
-        fixed(void *d = &data) {
-            if(!Listeners.ContainsKey((uint)d)) {
-                ConstructorInfo? constructor = typeof(T).GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, [typeof(void*)]) ?? throw new ArgumentException("Type does not contain any constructor with valid argument - should be one \"void*\" argument");
-                T obj = (T)constructor.Invoke([new IntPtr(d)]);
-                Listeners.Add((uint)d, obj);
-            }
+    unsafe void IWaylandListener<L>.SetNativeListener<K, T>(L listener, ref T data) {
+        fixed(T *ptr = &data) {
+            ConstructorInfo? constructor = typeof(T).GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, [typeof(L), typeof(void*)]) ?? throw new ArgumentException("Type does not contain any constructor with valid argument - should be one \"void*\" argument");
+            K obj = (K)constructor.Invoke([listener, new IntPtr(ptr)]);
+            Listener = obj;
 
-            int id = Listeners[(uint)d].AddNativeListener(listener);
-            AddListener(Listeners[(uint)d].GetNativeListener(id), d);
-            return id;
+            AddListener(Listener.GetNativeListener(), ptr);
         }
     }
+
+    bool IWaylandListener<L>.HasListener() => Listener != null;
 
 
 

@@ -10,7 +10,7 @@ namespace Sharpland.assembly.wayland.listener;
 /// </summary>
 /// <param name="data">Data to send with each event</param>
 /// <typeparam name="L">Native listener object type</typeparam>
-public unsafe abstract class WaylandListenerObject<L>(void *data) where L : unmanaged {
+public unsafe abstract class WaylandListenerObject<L>(L listener, void *data) where L : unmanaged {
     /// <summary>
     /// Instance data that is sent with each event
     /// </summary>
@@ -21,28 +21,16 @@ public unsafe abstract class WaylandListenerObject<L>(void *data) where L : unma
     /// <summary>
     /// List of native listeners that this object holds
     /// </summary>
-    private readonly List<L> _nativeListeners = [];
+    private readonly L _listener = listener;
 
 
 
     /// <summary>
-    /// Adds a native Wayland listener
+    /// Gets the native listener as a pointer
     /// </summary>
-    /// <param name="listener">Listener object</param>
-    /// <returns>The added listener ID</returns>
-    internal int AddNativeListener(L listener) {
-        int id = _nativeListeners.Count;
-        _nativeListeners.Add(listener);
-        return id;
-    }
-
-    /// <summary>
-    /// Gets the native listener with ID as a pointer
-    /// </summary>
-    /// <param name="id">Listener object ID</param>
-    /// <returns>Pointer to the specified listener</returns>
-    internal L * GetNativeListener(int id) {
-        fixed(L *ptr = &_nativeListeners.ToArray()[id]) {
+    /// <returns>Pointer to the native listener</returns>
+    internal L * GetNativeListener() {
+        fixed(L *ptr = &_listener) {
             return ptr;
         }
     }
@@ -52,7 +40,7 @@ public unsafe abstract class WaylandListenerObject<L>(void *data) where L : unma
 
 /// <inheritdoc cref="WaylandListenerObject{L}"/>
 /// <typeparam name="T"><c>C# event listener</c> object type</typeparam>
-public unsafe class WaylandListenerObject<L, T>(void *data) : WaylandListenerObject<L>(data) where L : unmanaged where T : Delegate {
+public unsafe class WaylandListenerObject<L, T>(L listener, void *data) : WaylandListenerObject<L>(listener, data) where L : unmanaged where T : Delegate {
     /// <summary>
     /// <c>C# listeners</c> for the underlying <c>Wayland</c> events.
     /// </summary>
@@ -66,9 +54,14 @@ public unsafe class WaylandListenerObject<L, T>(void *data) : WaylandListenerObj
 /// listener object for communication
 /// </summary>
 /// <typeparam name="K"><c>C# event listener</c> object type for secondary events</typeparam>
-public unsafe class WaylandListenerObject<L, T, K>(void *data) : WaylandListenerObject<L, T>(data) where L : unmanaged where T : Delegate where K : Delegate {
+public unsafe class WaylandListenerObject<L, T, K>(L listener, void *data) : WaylandListenerObject<L>(listener, data) where L : unmanaged where T : Delegate where K : Delegate {
     /// <summary>
-    /// <c>C# listeners</c> for the underlying <c>Wayland</c> events
+    /// Main event listeners
     /// </summary>
-    internal K? SecondaryEvents;
+    internal T? First;
+
+    /// <summary>
+    /// Secondary event listeners
+    /// </summary>
+    internal K? Secondary;
 }

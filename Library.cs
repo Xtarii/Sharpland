@@ -9,6 +9,7 @@ using Sharpland.wayland;
 using Sharpland.wayland.enums;
 using Sharpland.wayland.registry;
 using Sharpland.wayland.surface;
+using Sharpland.xdg;
 
 namespace Sharpland;
 
@@ -33,7 +34,7 @@ public class Sharpland {
 
 
 
-    private XDGSurface surface;
+    private XDGSurface<GCHandle> surface;
 
     private WaylandCompositor compositor = null!;
     private WaylandSharedMemory sharedMemory = null!;
@@ -54,31 +55,15 @@ public class Sharpland {
         instance = GCHandle.Alloc(this);
         display = new();
 
-        registry = display.GetRegistry(ref instance);
+        registry = display.GetRegistry<GCHandle>();
         registry.AddListener(Global, Remove, ref instance);
         display.RoundTrip();
-
-
 
         if(compositor == null || sharedMemory == null)
             throw new Exception("No compositor or SHM");
 
-
-        // Adds listener
-        unsafe {
-
-
-
-
-            surfaceListener = new() {
-                Configure = &Configure
-            };
-
-            fixed(XDG.XDGSurfaceListener * sl = &surfaceListener) {
-                surface = new(new Surface(compositor), @base);
-                surface.AddListener(sl, GCHandle.ToIntPtr(instance).ToPointer());
-            }
-        }
+        surface = new(new Surface(compositor), @base);
+        surface.AddListener(Configure, ref instance);
 
         topLevel = new(surface) {
             Title = "Test Window"
@@ -178,16 +163,14 @@ public class Sharpland {
 
 
 
-    static unsafe void Configure(void *data, IntPtr surface, uint serial) {
-        IntPtr ptr = new(data);
-        Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
+    static unsafe void Configure(GCHandle data, XDGSurface<GCHandle> surface, uint serial) {
+        Sharpland? instance = (Sharpland?)data.Target;
         if(instance == null) return;
-
 
 
         instance.surface.AckConfigure(serial);
 
-        instance.buffer = DrawFrame(instance, data);
+        instance.buffer = DrawFrame(instance, GCHandle.ToIntPtr(data).ToPointer());
         instance.surface.Surface.Attach(instance.buffer.Instance, 0, 0);
         instance.surface.Surface.Commit();
     }

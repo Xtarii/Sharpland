@@ -7,7 +7,7 @@ namespace Sharpland.assembly.xdg.surface;
 /// <summary>
 /// XDG base object wrapper
 /// </summary>
-internal partial class XDGBase : WaylandObject {
+public partial class XDGBase : WaylandObject {
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_xdg_wm_base_add_listener(IntPtr @base, XDG.XDGBaseListener *listener, void *data);
     [LibraryImport(Wayland.WRAPPER)]
@@ -21,7 +21,7 @@ internal partial class XDGBase : WaylandObject {
     /// Creates a XDG base object
     /// </summary>
     /// <param name="instance">XDG base instance</param>
-    private XDGBase(IntPtr instance) : base(instance) {
+    internal XDGBase(IntPtr instance) : base(instance) {
         if(Instance == IntPtr.Zero)
             throw new ExternalException("Failed to create XDG base interface.");
     }

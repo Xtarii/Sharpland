@@ -8,12 +8,12 @@ namespace Sharpland.assembly.xdg;
 /// XDG provides ways to render windows
 /// and popups in a desktop environment
 /// </summary>
-internal static class XDG {
+public static class XDG {
     /// <summary>
     /// XDG surface object event listener
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal struct XDGSurfaceListener {
+    public struct XDGSurfaceListener {
         /// <summary>
         /// suggest a surface change
         /// <para/>
@@ -46,7 +46,7 @@ internal static class XDG {
     /// XDG base object event listener
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal struct XDGBaseListener {
+    public struct XDGBaseListener {
         /// <summary>
         /// check if the client is alive
         /// <para/>

@@ -8,7 +8,7 @@ namespace Sharpland.assembly.xdg.surface;
 /// <summary>
 /// XDG surface object wrapper
 /// </summary>
-internal partial class XDGSurface : WaylandListener<XDG.XDGSurfaceListener> {
+public abstract partial class XDGSurface : WaylandListener<XDG.XDGSurfaceListener> {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_xdg_wm_base_get_xdg_surface(IntPtr XDGBase, IntPtr surface);
     [LibraryImport(Wayland.WRAPPER)]
