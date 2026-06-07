@@ -1,5 +1,4 @@
 ﻿using System.Runtime.InteropServices;
-using Sharpland.assembly.wayland;
 using Sharpland.assembly.wayland.renderer;
 using Sharpland.assembly.wayland.shm;
 using Sharpland.assembly.xdg;
@@ -41,9 +40,7 @@ public class Sharpland {
 
     private Buffer<GCHandle> buffer = null!;
 
-    private XDGBase @base = null!;
-
-    private XDG.XDGBaseListener baseListener;
+    private XDGBase<GCHandle> @base = null!;
 
     private XDGTopLevel topLevel;
 
@@ -121,7 +118,7 @@ public class Sharpland {
 
 
 
-    static unsafe void Global(GCHandle data, Registry<GCHandle> registry, uint name, string @interface, uint version) {
+    static void Global(GCHandle data, Registry<GCHandle> registry, uint name, string @interface, uint version) {
         Sharpland? instance = (Sharpland?)data.Target;
         if(instance == null) return;
 
@@ -132,13 +129,8 @@ public class Sharpland {
             instance.sharedMemory = WaylandSharedMemory.Create(instance.registry, name, 1);
 
         } else if(@interface == "xdg_wm_base") {
-            instance.@base = XDGBase.Create(instance.registry, name, 1);
-
-            // Add listener
-            instance.baseListener = new() { Ping = &Ping };
-            fixed(XDG.XDGBaseListener *listener = &instance.baseListener) {
-                instance.@base.AddListener(listener, GCHandle.ToIntPtr(data).ToPointer());
-            }
+            instance.@base = new(instance.registry, name, 1);
+            instance.@base.AddListener(Ping, ref instance.instance);
 
         } else {
             Console.WriteLine($"UNSET INTERFACE: {@interface}");
@@ -149,12 +141,9 @@ public class Sharpland {
 
 
 
-    static unsafe void Ping(void *data, IntPtr @base, uint serial) {
-        IntPtr ptr = new(data);
-        Sharpland? instance = (Sharpland?)GCHandle.FromIntPtr(ptr).Target;
+    static void Ping(GCHandle data, XDGBase<GCHandle> @base, uint serial) {
+        Sharpland? instance = (Sharpland?)data.Target;
         if(instance == null) return;
-
-
 
         instance.@base.Pong(serial);
     }
@@ -208,8 +197,6 @@ public class Sharpland {
     public static void DestroyBuffer(GCHandle data, Buffer<GCHandle> buffer) {
         Sharpland? instance = (Sharpland?)data.Target;
         if(instance == null) return;
-
-        Console.WriteLine("OK");
 
         instance.buffer.Dispose();
     }

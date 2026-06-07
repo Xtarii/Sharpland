@@ -1,13 +1,13 @@
 using System.Runtime.InteropServices;
 using Sharpland.assembly.wayland;
-using Sharpland.assembly.wayland.registry;
+using Sharpland.assembly.wayland.listener;
 
 namespace Sharpland.assembly.xdg.surface;
 
 /// <summary>
 /// XDG base object wrapper
 /// </summary>
-public partial class XDGBase : WaylandObject {
+public abstract partial class XDGBase : WaylandListener<XDG.XDGBaseListener> {
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_xdg_wm_base_add_listener(IntPtr @base, XDG.XDGBaseListener *listener, void *data);
     [LibraryImport(Wayland.WRAPPER)]
@@ -28,20 +28,13 @@ public partial class XDGBase : WaylandObject {
 
 
 
-    /// <summary>
-    /// Adds listener to XDG base object events
-    /// <para/>
-    /// The <paramref name="data"/> parameter is the
-    /// data to use between events. It is sent with
-    /// the event when an event is invoked.
-    /// </summary>
-    /// <param name="listener">Listener object</param>
-    /// <param name="data">Data to use in the events</param>
-    /// <returns>Add listener status</returns>
-    public unsafe int AddListener(XDG.XDGBaseListener *listener, void *data) {
+    protected internal override unsafe void AddListener(XDG.XDGBaseListener *listener, void *data) {
         int res = wrapper_xdg_wm_base_add_listener(Instance, listener, data);
-        return res;
+        if(res < 0)
+            throw new ExternalException("Failed to add listener to XDG base object.");
     }
+
+
 
     /// <summary>
     /// Responds to a XDG base event ( ping ) with pong
@@ -55,20 +48,4 @@ public partial class XDGBase : WaylandObject {
 
 
     protected override void OnDispose() { /* Do nothing */ }
-
-
-
-
-
-    /// <summary>
-    /// Creates a XDG base object
-    /// </summary>
-    /// <param name="registry">Wayland registry</param>
-    /// <param name="name">XDG interface name</param>
-    /// <param name="version">XDG interface version</param>
-    /// <returns>XDG base object</returns>
-    internal static XDGBase Create(WaylandRegistry registry, uint name, uint version) {
-        IntPtr instance = registry.Bind(XDGInterface.Base(), name, version);
-        return new(instance);
-    }
 }
