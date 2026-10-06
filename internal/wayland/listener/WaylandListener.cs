@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace Sharpland.assembly.wayland.listener;
 
 /// <summary>
@@ -15,6 +13,11 @@ public abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(instan
     protected internal WaylandListenerObject<L>? Listener { get; private set; }
 
 
+
+    unsafe void IWaylandListener<L>.SetNativeListener<K>(K listener) {
+        Listener = listener;
+        AddListener(Listener.GetNativeListener(), null);
+    }
 
     unsafe void IWaylandListener<L>.SetNativeListener<K, T>(K listener, ref T data) {
         fixed(T *ptr = &data) {

@@ -30,6 +30,7 @@ public class Buffer<K> : WaylandBuffer, IWaylandListener<Wayland.BufferListener,
 
 
 
+    /// <inheritdoc/>
     public unsafe void AddListener<T>(BufferRemoveCallback<K> listener, ref T data) where T : unmanaged {
         IWaylandListener<Wayland.BufferListener, BufferRemoveCallback<K>> instance = this;
 
@@ -45,6 +46,11 @@ public class Buffer<K> : WaylandBuffer, IWaylandListener<Wayland.BufferListener,
             WaylandListenerObject<Wayland.BufferListener, BufferRemoveCallback<K>> obj = (WaylandListenerObject<Wayland.BufferListener, BufferRemoveCallback<K>>)Listener!;
             obj.Events += listener;
         }
+    }
+
+    /// <inheritdoc/>
+    public void AddListener(BufferRemoveCallback<K> listener) {
+        throw new NotImplementedException();
     }
 
 

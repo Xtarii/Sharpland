@@ -30,6 +30,7 @@ public class XDGBase<K> : assembly.xdg.surface.XDGBase, IWaylandListener<XDG.XDG
 
 
 
+    /// <inheritdoc/>
     public unsafe void AddListener<T>(XDGBasePingCallback<K> listener, ref T data) where T : unmanaged {
         IWaylandListener<XDG.XDGBaseListener, XDGBasePingCallback<K>> instance = this;
 
@@ -45,6 +46,11 @@ public class XDGBase<K> : assembly.xdg.surface.XDGBase, IWaylandListener<XDG.XDG
             WaylandListenerObject<XDG.XDGBaseListener, XDGBasePingCallback<K>> obj = (WaylandListenerObject<XDG.XDGBaseListener, XDGBasePingCallback<K>>)Listener!;
             obj.Events += listener;
         }
+    }
+
+    /// <inheritdoc/>
+    public void AddListener(XDGBasePingCallback<K> listener) {
+        throw new NotImplementedException();
     }
 
 

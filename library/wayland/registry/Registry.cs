@@ -3,20 +3,21 @@ using Sharpland.assembly.wayland;
 using Sharpland.assembly.wayland.listener;
 using Sharpland.assembly.wayland.registry;
 using Sharpland.assembly.wayland.renderer;
+using Sharpland.wayland.registry.events;
 
 namespace Sharpland.wayland.registry;
 
 /// <summary>
-/// This is called for each global registry event invoked
+/// Registry event handler
+/// <para/>
+/// A global event is called for each global registry event invoked
 /// by <c>Wayland</c> on the registry object.
-/// </summary>
-public delegate void RegistryGlobal<K>(K data, Registry<K> registry, uint name, string @interface, uint version) where K : unmanaged;
-
-/// <summary>
-/// This is called for each global remove registry event
+/// <para/>
+/// And a global remove is called for each global remove registry event
 /// invoked by <c>Wayland</c> on the registry object.
 /// </summary>
-public delegate void RegistryGlobalRemove<K>(K data, Registry<K> registry, uint name) where K : unmanaged;
+/// <param name="e">Registry event</param>
+public delegate void RegistryEventHandler(RegistryEvent e);
 
 
 
@@ -25,9 +26,12 @@ public delegate void RegistryGlobalRemove<K>(K data, Registry<K> registry, uint 
 /// <para/>
 /// Extends the assembly registry wrapper
 /// for added <c>C#</c> functionality.
+/// <para/>
+/// Wayland calls on event handlers registered
+/// on registries. See <see cref="RegistryEventHandler"/>
+/// for the events invoked by <c>wayland</c> and when.
 /// </summary>
-/// <typeparam name="K">Data to use in registry events</typeparam>
-public class Registry<K> : WaylandRegistry, IWaylandListener<Wayland.RegistryListener, RegistryGlobal<K>, RegistryGlobalRemove<K>> where K : unmanaged {
+public class Registry : WaylandRegistry, IWaylandListener<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler> {
     /// <summary>
     /// Creates base registry object
     /// </summary>
@@ -36,23 +40,51 @@ public class Registry<K> : WaylandRegistry, IWaylandListener<Wayland.RegistryLis
 
 
 
-    public unsafe void AddListener<T>(RegistryGlobal<K> first, RegistryGlobalRemove<K> second, ref T data) where T : unmanaged {
-        IWaylandListener<Wayland.RegistryListener, RegistryGlobal<K>, RegistryGlobalRemove<K>> instance = this;
+    /// <inheritdoc/>
+    public void AddListener<T>(RegistryEventHandler first, RegistryEventHandler second, ref T data) where T : unmanaged {
+        IWaylandListener<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler> instance = this;
+
+        if(GetWaylandListener(out var listener)) {
+            instance.SetNativeListener(listener, ref data);
+        }
+
+        listener.First += first;
+        listener.Secondary += second;
+    }
+
+    /// <inheritdoc/>
+    public void AddListener(RegistryEventHandler first, RegistryEventHandler second) {
+        IWaylandListener<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler> instance = this;
+
+        if(GetWaylandListener(out var listener)) {
+            instance.SetNativeListener(listener);
+        }
+
+        listener.First += first;
+        listener.Secondary += second;
+    }
+
+
+
+    /// <summary>
+    /// Gets the registry event listener
+    /// </summary>
+    /// <param name="listener">Status to indicate if a new listener was created</param>
+    /// <returns>Registry event listener</returns>
+    private unsafe bool GetWaylandListener(out WaylandListenerObject<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler> listener) {
+        IWaylandListener<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler> instance = this;
 
         if(!instance.HasListener()) {
-            Wayland.RegistryListener listener = new() {
+            Wayland.RegistryListener regListener = new() {
                 Global = &Global,
                 GlobalRemove = &Remove
             };
-            WaylandListenerObject<Wayland.RegistryListener, RegistryGlobal<K>, RegistryGlobalRemove<K>> obj = new(listener);
-            instance.SetNativeListener(obj, ref data);
+            listener = new(regListener);
+            return true;
         }
 
-        fixed(T *ptr = &data) {
-            WaylandListenerObject<Wayland.RegistryListener, RegistryGlobal<K>, RegistryGlobalRemove<K>> obj = (WaylandListenerObject<Wayland.RegistryListener, RegistryGlobal<K>, RegistryGlobalRemove<K>>)Listener!;
-            obj.First += first;
-            obj.Secondary += second;
-        }
+        listener = (WaylandListenerObject<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler>)Listener!;
+        return false;
     }
 
 
@@ -67,11 +99,11 @@ public class Registry<K> : WaylandRegistry, IWaylandListener<Wayland.RegistryLis
     /// <param name="name">Interface name</param>
     /// <param name="i">Interface</param>
     /// <param name="version">Interface version</param>
-    static unsafe void Global(void *data, IntPtr registry, uint name, IntPtr i, uint version) {
-        Registry<K> instance = GetInstanceOf<Registry<K>>(registry);
+    private static unsafe void Global(void *data, IntPtr registry, uint name, IntPtr i, uint version) {
+        Registry instance = GetInstanceOf<Registry>(registry);
         string @interface = Marshal.PtrToStringAnsi(i)!;
-        K *ptr = (K*)data;
-        ((WaylandListenerObject<Wayland.RegistryListener, RegistryGlobal<K>, RegistryGlobalRemove<K>>)instance.Listener!).First?.Invoke(*ptr, instance, name, @interface, version);
+        RegistryEvent e = new(@interface, name, version, data, instance);
+        ((WaylandListenerObject<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler>)instance.Listener!).First?.Invoke(e);
     }
 
     /// <summary>
@@ -80,9 +112,9 @@ public class Registry<K> : WaylandRegistry, IWaylandListener<Wayland.RegistryLis
     /// <param name="data">Event data</param>
     /// <param name="registry">Registry instance</param>
     /// <param name="name">Interface name</param>
-    static unsafe void Remove(void *data, IntPtr registry, uint name) {
-        Registry<K> instance = GetInstanceOf<Registry<K>>(registry);
-        K *ptr = (K*)data;
-        ((WaylandListenerObject<Wayland.RegistryListener, RegistryGlobal<K>, RegistryGlobalRemove<K>>)instance.Listener!).Secondary?.Invoke(*ptr, instance, name);
+    private static unsafe void Remove(void *data, IntPtr registry, uint name) {
+        Registry instance = GetInstanceOf<Registry>(registry);
+        RegistryEvent e = new("", name, 0, data, instance);
+        ((WaylandListenerObject<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler>)instance.Listener!).Secondary?.Invoke(e);
     }
 }

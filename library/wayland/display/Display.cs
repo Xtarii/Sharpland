@@ -31,7 +31,5 @@ public class Display : WaylandDisplay {
     /// <summary>
     /// Gets wayland registry object from this display
     /// </summary>
-    /// <typeparam name="T">Type of data to use in the registry events</typeparam>
-    /// <returns>Wayland registry object</returns>
-    public Registry<T> GetRegistry<T>() where T : unmanaged => new(this);
+    public Registry GetRegistry() => new(this);
 }

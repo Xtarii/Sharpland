@@ -15,6 +15,13 @@ public interface IWaylandListener<L> where L : unmanaged {
     /// Sets native <c>Wayland</c> listener object
     /// </summary>
     /// <param name="listener">Wayland listener object</param>
+    /// <typeparam name="K">Type of listener to use for event</typeparam>
+    protected internal void SetNativeListener<K>(K listener) where K : WaylandListenerObject<L>;
+
+    /// <summary>
+    /// Sets native <c>Wayland</c> listener object
+    /// </summary>
+    /// <param name="listener">Wayland listener object</param>
     /// <param name="data">Data to use in the events</param>
     /// <typeparam name="K">Type of listener to use for events</typeparam>
     /// <typeparam name="T">Type of data to use in the events</typeparam>
@@ -49,6 +56,9 @@ public interface IWaylandListener<L, E> : IWaylandListener<L> where L : unmanage
     /// <param name="data">Data to use in the event</param>
     /// <typeparam name="T">Type of data</typeparam>
     public void AddListener<T>(E listener, ref T data) where T : unmanaged;
+
+    /// <inheritdoc cref="IWaylandListener{L, E}.AddListener{T}(E, ref T)"/>
+    public void AddListener(E listener);
 }
 
 
@@ -69,4 +79,7 @@ public interface IWaylandListener<L, E, K> : IWaylandListener<L> where L : unman
     /// <param name="data">Data to use in the event</param>
     /// <typeparam name="T">Type of data</typeparam>
     public void AddListener<T>(E first, K second, ref T data) where T : unmanaged;
+
+    /// <inheritdoc cref="IWaylandListener{L, E, K}.AddListener{T}(E, K, ref T)"/>
+    public void AddListener(E first, K second);
 }

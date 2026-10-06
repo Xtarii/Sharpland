@@ -33,6 +33,7 @@ public abstract class WaylandObject : IDisposable {
 
 
 
+    /// <inheritdoc/>
     public void Dispose() {
         OnDispose();
         if(Instance == IntPtr.Zero) return;

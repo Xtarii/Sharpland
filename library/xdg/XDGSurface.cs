@@ -30,6 +30,7 @@ public class XDGSurface<K> : XDGSurface, IWaylandListener<XDG.XDGSurfaceListener
 
 
 
+    /// <inheritdoc/>
     public unsafe void AddListener<T>(XDGSurfaceCallback<K> listener, ref T data) where T : unmanaged {
         IWaylandListener<XDG.XDGSurfaceListener> instance = this;
 
@@ -45,6 +46,11 @@ public class XDGSurface<K> : XDGSurface, IWaylandListener<XDG.XDGSurfaceListener
             WaylandListenerObject<XDG.XDGSurfaceListener, XDGSurfaceCallback<K>> obj = (WaylandListenerObject<XDG.XDGSurfaceListener, XDGSurfaceCallback<K>>)Listener!;
             obj.Events += listener;
         }
+    }
+
+    /// <inheritdoc/>
+    public void AddListener(XDGSurfaceCallback<K> listener) {
+        throw new NotImplementedException();
     }
 
 

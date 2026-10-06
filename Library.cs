@@ -1,13 +1,12 @@
 ﻿using System.Runtime.InteropServices;
 using Sharpland.assembly.wayland.renderer;
 using Sharpland.assembly.wayland.shm;
-using Sharpland.assembly.xdg;
 using Sharpland.assembly.xdg.surface;
-using Sharpland.wayland;
 using Sharpland.wayland.buffers;
 using Sharpland.wayland.enums;
-using Sharpland.wayland.registry;
+using Sharpland.wayland.registry.events;
 using Sharpland.wayland.surface;
+using Sharpland.window;
 using Sharpland.xdg;
 
 namespace Sharpland;
@@ -23,13 +22,11 @@ public class Sharpland {
     private GCHandle instance;
 
 
-
-    private Display display;
-    public int Dispatch() => display.Dispatch();
-
+    private WaylandWindow window;
+    public int Dispatch() => window.Display.Dispatch();
 
 
-    private Registry<GCHandle> registry;
+    long test = 0;
 
 
 
@@ -48,11 +45,10 @@ public class Sharpland {
 
     public Sharpland() {
         instance = GCHandle.Alloc(this);
-        display = new();
 
-        registry = display.GetRegistry<GCHandle>();
-        registry.AddListener(Global, Remove, ref instance);
-        display.RoundTrip();
+        window = new();
+        window.Registry.AddListener(GlobalHandler, RemoveHandler, ref test);
+        window.Display.RoundTrip();
 
         if(compositor == null || sharedMemory == null)
             throw new Exception("No compositor or SHM");
@@ -112,32 +108,40 @@ public class Sharpland {
 
     public void Destroy() {
         surface.Dispose();
-        display.Dispose();
+
+        window.Dispose();
+
         instance.Free();
     }
 
 
 
-    static void Global(GCHandle data, Registry<GCHandle> registry, uint name, string @interface, uint version) {
-        Sharpland? instance = (Sharpland?)data.Target;
-        if(instance == null) return;
+    void GlobalHandler(RegistryEvent data) {
+
+        // DEBUG
+
+        Console.WriteLine(data.GetData<long>());
+        data.GetData<long>() += 5;  // Adds to data for next call
 
 
-        if(@interface == "wl_compositor") {
-            instance.compositor = WaylandCompositor.Create(instance.registry, name, 1);
-        } else if(@interface == "wl_shm") {
-            instance.sharedMemory = WaylandSharedMemory.Create(instance.registry, name, 1);
 
-        } else if(@interface == "xdg_wm_base") {
-            instance.@base = new(instance.registry, name, 1);
-            instance.@base.AddListener(Ping, ref instance.instance);
+        // Setup
+
+        if(data.Interface == "wl_compositor") {
+            compositor = WaylandCompositor.Create(window.Registry, data.Name, 1);
+        } else if(data.Interface == "wl_shm") {
+            sharedMemory = WaylandSharedMemory.Create(window.Registry, data.Name, 1);
+
+        } else if(data.Interface == "xdg_wm_base") {
+            @base = new(window.Registry, data.Name, 1);
+            @base.AddListener(Ping, ref instance);
 
         } else {
-            Console.WriteLine($"UNSET INTERFACE: {@interface}");
+            Console.WriteLine($"UNSET INTERFACE: {data.Interface}");
         }
     }
 
-    static void Remove(GCHandle data, Registry<GCHandle> registry, uint name) {}
+    void RemoveHandler(RegistryEvent data) { /* Do nothing */ }
 
 
 
