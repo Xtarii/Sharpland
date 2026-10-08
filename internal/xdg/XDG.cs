@@ -19,7 +19,7 @@ public static class XDG {
         /// <para/>
         /// The configure event marks the end of a configure sequence. A
         /// configure sequence is a set of one or more events configuring
-        /// the state of the <see cref="surface.XDGSurface"/>, including
+        /// the state of the <see cref="surface.NativeXDGSurface"/>, including
         /// the final <c>XDGSurface configure</c> event.
         /// <para/>
         /// Where applicable, <c>XDGSurface</c> surface roles will during a

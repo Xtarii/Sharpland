@@ -1,3 +1,4 @@
+using Sharpland.assembly.wayland.renderer;
 using Sharpland.wayland;
 using Sharpland.wayland.registry;
 
@@ -16,6 +17,11 @@ public class WaylandWindow : IDisposable {
     /// Window registry
     /// </summary>
     public Registry Registry { get; private set; }
+
+    /// <summary>
+    /// Window compositor
+    /// </summary>
+    public WaylandCompositor Compositor { get; private set; } = null!;
 
 
 

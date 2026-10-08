@@ -36,6 +36,16 @@ public interface IWaylandListener<L> where L : unmanaged {
     /// else <c>False</c>
     /// </returns>
     protected internal bool HasListener();
+
+    /// <summary>
+    /// Gets the wayland listener object or
+    /// creates a new object if none was
+    /// registered on this object.
+    /// </summary>
+    /// <param name="listener">Wayland listener</param>
+    /// <typeparam name="T">Type of listener to create</typeparam>
+    /// <returns><c>True</c> if a new listener was created.</returns>
+    protected internal bool GetWaylandListener<T>(out T listener) where T : WaylandListenerObject<L>;
 }
 
 

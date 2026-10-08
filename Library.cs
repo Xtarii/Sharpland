@@ -1,13 +1,13 @@
-﻿using System.Runtime.InteropServices;
-using Sharpland.assembly.wayland.renderer;
+﻿using Sharpland.assembly.wayland.renderer;
 using Sharpland.assembly.wayland.shm;
 using Sharpland.assembly.xdg.surface;
-using Sharpland.wayland.buffers;
+using Sharpland.wayland.buffers.events;
 using Sharpland.wayland.enums;
 using Sharpland.wayland.registry.events;
 using Sharpland.wayland.surface;
 using Sharpland.window;
 using Sharpland.xdg;
+using Sharpland.xdg.events;
 
 namespace Sharpland;
 
@@ -19,7 +19,9 @@ public class Sharpland {
 
 
 
-    private GCHandle instance;
+    // private GCHandle instance;
+
+    private Sharpland instance;
 
 
     private WaylandWindow window;
@@ -30,21 +32,21 @@ public class Sharpland {
 
 
 
-    private XDGSurface<GCHandle> surface;
+    private XDGSurface surface;
 
     private WaylandCompositor compositor = null!;
     private WaylandSharedMemory sharedMemory = null!;
 
-    private Buffer<GCHandle> buffer = null!;
+    private wayland.buffers.Buffer buffer = null!;
 
-    private XDGBase<GCHandle> @base = null!;
+    private XDGBase @base = null!;
 
     private XDGTopLevel topLevel;
 
 
 
     public Sharpland() {
-        instance = GCHandle.Alloc(this);
+        instance = this;
 
         window = new();
         window.Registry.AddListener(GlobalHandler, RemoveHandler, ref test);
@@ -54,7 +56,7 @@ public class Sharpland {
             throw new Exception("No compositor or SHM");
 
         surface = new(new Surface(compositor), @base);
-        surface.AddListener(Configure, ref instance);
+        surface.AddListener(Configure);
 
         topLevel = new(surface) {
             Title = "Test Window"
@@ -108,10 +110,7 @@ public class Sharpland {
 
     public void Destroy() {
         surface.Dispose();
-
         window.Dispose();
-
-        instance.Free();
     }
 
 
@@ -129,12 +128,13 @@ public class Sharpland {
 
         if(data.Interface == "wl_compositor") {
             compositor = WaylandCompositor.Create(window.Registry, data.Name, 1);
+
         } else if(data.Interface == "wl_shm") {
             sharedMemory = WaylandSharedMemory.Create(window.Registry, data.Name, 1);
 
         } else if(data.Interface == "xdg_wm_base") {
             @base = new(window.Registry, data.Name, 1);
-            @base.AddListener(Ping, ref instance);
+            @base.AddListener(Ping);
 
         } else {
             Console.WriteLine($"UNSET INTERFACE: {data.Interface}");
@@ -143,34 +143,23 @@ public class Sharpland {
 
     void RemoveHandler(RegistryEvent data) { /* Do nothing */ }
 
+    void Ping(XDGBaseEvent e) => e.Pong();
 
+    void Configure(XDGSurfaceEvent e) {
+        e.Owner.AckConfigure(e.Serial);
 
-    static void Ping(GCHandle data, XDGBase<GCHandle> @base, uint serial) {
-        Sharpland? instance = (Sharpland?)data.Target;
-        if(instance == null) return;
-
-        instance.@base.Pong(serial);
+        buffer = DrawFrame(instance);
+        surface.Surface.Attach(buffer.Instance, 0, 0);
+        surface.Surface.Commit();
     }
 
-
-
-    static void Configure(GCHandle data, XDGSurface<GCHandle> surface, uint serial) {
-        Sharpland? instance = (Sharpland?)data.Target;
-        if(instance == null) return;
-
-
-        instance.surface.AckConfigure(serial);
-
-        instance.buffer = DrawFrame(instance);
-        instance.surface.Surface.Attach(instance.buffer.Instance, 0, 0);
-        instance.surface.Surface.Commit();
-    }
+    void DestroyBuffer(BufferEvent e) => e.Owner.Dispose();
 
 
 
 
 
-    internal unsafe static Buffer<GCHandle> DrawFrame(Sharpland instance) {
+    internal unsafe wayland.buffers.Buffer DrawFrame(Sharpland instance) {
         const int width = 640, height = 480;
         uint stride = width * 4;
         uint size = stride * height;
@@ -179,7 +168,7 @@ public class Sharpland {
         uint * data = (uint*)instance.sharedMemory.Map(fd, size);
 
         WaylandSharedMemoryPool pool = new(instance.sharedMemory, fd, size);
-        Buffer<GCHandle> buffer = pool.CreateBuffer<Buffer<GCHandle>>(0, width, height, (int)stride, SharedMemoryFormat.WL_SHM_FORMAT_XRGB8888);
+        wayland.buffers.Buffer buffer = pool.CreateBuffer<wayland.buffers.Buffer>(0, width, height, (int)stride, SharedMemoryFormat.WL_SHM_FORMAT_XRGB8888);
         pool.Dispose();
         instance.sharedMemory.Close(fd);
 
@@ -191,17 +180,8 @@ public class Sharpland {
 
         instance.sharedMemory.MunMap(data, (int)size);
 
-        buffer.AddListener(DestroyBuffer, ref instance.instance);
+        buffer.AddListener(DestroyBuffer);
 
         return buffer;
-    }
-
-
-
-    public static void DestroyBuffer(GCHandle data, Buffer<GCHandle> buffer) {
-        Sharpland? instance = (Sharpland?)data.Target;
-        if(instance == null) return;
-
-        instance.buffer.Dispose();
     }
 }

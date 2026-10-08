@@ -44,7 +44,7 @@ public class Registry : WaylandRegistry, IWaylandListener<Wayland.RegistryListen
     public void AddListener<T>(RegistryEventHandler first, RegistryEventHandler second, ref T data) where T : unmanaged {
         IWaylandListener<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler> instance = this;
 
-        if(GetWaylandListener(out var listener)) {
+        if(instance.GetWaylandListener<WaylandListenerObject<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler>>(out var listener)) {
             instance.SetNativeListener(listener, ref data);
         }
 
@@ -56,7 +56,7 @@ public class Registry : WaylandRegistry, IWaylandListener<Wayland.RegistryListen
     public void AddListener(RegistryEventHandler first, RegistryEventHandler second) {
         IWaylandListener<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler> instance = this;
 
-        if(GetWaylandListener(out var listener)) {
+        if(instance.GetWaylandListener<WaylandListenerObject<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler>>(out var listener)) {
             instance.SetNativeListener(listener);
         }
 
@@ -64,27 +64,13 @@ public class Registry : WaylandRegistry, IWaylandListener<Wayland.RegistryListen
         listener.Secondary += second;
     }
 
-
-
-    /// <summary>
-    /// Gets the registry event listener
-    /// </summary>
-    /// <param name="listener">Status to indicate if a new listener was created</param>
-    /// <returns>Registry event listener</returns>
-    private unsafe bool GetWaylandListener(out WaylandListenerObject<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler> listener) {
-        IWaylandListener<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler> instance = this;
-
-        if(!instance.HasListener()) {
-            Wayland.RegistryListener regListener = new() {
-                Global = &Global,
-                GlobalRemove = &Remove
-            };
-            listener = new(regListener);
-            return true;
-        }
-
-        listener = (WaylandListenerObject<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler>)Listener!;
-        return false;
+    /// <inheritdoc/>
+    protected internal unsafe override WaylandListenerObject<Wayland.RegistryListener> CreateListener() {
+        Wayland.RegistryListener regListener = new() {
+            Global = &Global,
+            GlobalRemove = &Remove
+        };
+        return new WaylandListenerObject<Wayland.RegistryListener, RegistryEventHandler, RegistryEventHandler>(regListener);
     }
 
 

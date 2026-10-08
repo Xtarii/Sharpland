@@ -141,7 +141,7 @@ internal partial class WaylandSharedMemory : WaylandObject {
     /// <param name="name">SHM name</param>
     /// <param name="version">SHM version</param>
     /// <returns>Wayland SHM object</returns>
-    internal static WaylandSharedMemory Create(WaylandRegistry registry, uint name, uint version) {
+    public static WaylandSharedMemory Create(WaylandRegistry registry, uint name, uint version) {
         IntPtr @interface = WaylandInterface.SHM();
         IntPtr instance = registry.Bind(@interface, name, version);
         return new(instance);

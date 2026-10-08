@@ -18,6 +18,7 @@ public class WaylandCompositor : WaylandObject {
 
 
 
+    /// <inheritdoc/>
     protected override void OnDispose() { /* Do nothing */ }
 
 
@@ -31,7 +32,7 @@ public class WaylandCompositor : WaylandObject {
     /// <param name="name">Compositor name</param>
     /// <param name="version">Compositor version</param>
     /// <returns>Wayland compositor instance</returns>
-    internal static WaylandCompositor Create(WaylandRegistry registry, uint name, uint version) {
+    public static WaylandCompositor Create(WaylandRegistry registry, uint name, uint version) {
         IntPtr @interface = WaylandInterface.Compositor();
         IntPtr Instance = registry.Bind(@interface, name, version);
         return new(Instance);

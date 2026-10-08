@@ -8,7 +8,7 @@ namespace Sharpland.assembly.xdg.surface;
 /// <summary>
 /// XDG surface object wrapper
 /// </summary>
-public abstract partial class XDGSurface : WaylandListener<XDG.XDGSurfaceListener> {
+public abstract partial class NativeXDGSurface : WaylandListener<XDG.XDGSurfaceListener> {
     [LibraryImport(Wayland.WRAPPER)]
     private static partial IntPtr wrapper_xdg_wm_base_get_xdg_surface(IntPtr XDGBase, IntPtr surface);
     [LibraryImport(Wayland.WRAPPER)]
@@ -32,7 +32,7 @@ public abstract partial class XDGSurface : WaylandListener<XDG.XDGSurfaceListene
     /// </summary>
     /// <param name="surface">Wayland surface object</param>
     /// <param name="base">XDG base interface object</param>
-    internal XDGSurface(WaylandSurface surface, XDGBase @base) : base(wrapper_xdg_wm_base_get_xdg_surface(@base.Instance, surface.Instance)) {
+    internal NativeXDGSurface(WaylandSurface surface, NativeXDGBase @base) : base(wrapper_xdg_wm_base_get_xdg_surface(@base.Instance, surface.Instance)) {
         Surface = surface;
         if(Instance == IntPtr.Zero)
             throw new ExternalException("Failed to create a XDG instance.");
@@ -40,10 +40,12 @@ public abstract partial class XDGSurface : WaylandListener<XDG.XDGSurfaceListene
 
 
 
+    /// <inheritdoc/>
     protected override void OnDispose() { /* Do nothing */ }
 
 
 
+    /// <inheritdoc/>
     protected internal override unsafe void AddListener(XDG.XDGSurfaceListener *listener, void *data) {
         int res = wrapper_xdg_surface_add_listener(Instance, listener, data);
         if(res < 0)

@@ -28,6 +28,16 @@ public abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(instan
 
     bool IWaylandListener<L>.HasListener() => Listener != null;
 
+    bool IWaylandListener<L>.GetWaylandListener<T>(out T listener) {
+        if(!((IWaylandListener<L>)this).HasListener()) {
+            listener = (T)CreateListener();
+            return true;
+        }
+
+        listener = (T)Listener!;
+        return false;
+    }
+
 
 
     /// <summary>
@@ -50,4 +60,14 @@ public abstract class WaylandListener<L>(IntPtr instance) : WaylandObject(instan
     /// <param name="listener">Wayland listener object</param>
     /// <param name="data">Data to send between events</param>
     protected internal abstract unsafe void AddListener(L *listener, void *data);
+
+    /// <summary>
+    /// Creates wayland listener object
+    /// <para/>
+    /// This is called when this object has
+    /// requested a listener but has no listener
+    /// created yet.
+    /// </summary>
+    /// <returns>Wayland listener object</returns>
+    protected internal abstract WaylandListenerObject<L> CreateListener();
 }

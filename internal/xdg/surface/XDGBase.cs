@@ -7,7 +7,7 @@ namespace Sharpland.assembly.xdg.surface;
 /// <summary>
 /// XDG base object wrapper
 /// </summary>
-public abstract partial class XDGBase : WaylandListener<XDG.XDGBaseListener> {
+public abstract partial class NativeXDGBase : WaylandListener<XDG.XDGBaseListener> {
     [LibraryImport(Wayland.WRAPPER)]
     private static unsafe partial int wrapper_xdg_wm_base_add_listener(IntPtr @base, XDG.XDGBaseListener *listener, void *data);
     [LibraryImport(Wayland.WRAPPER)]
@@ -21,13 +21,14 @@ public abstract partial class XDGBase : WaylandListener<XDG.XDGBaseListener> {
     /// Creates a XDG base object
     /// </summary>
     /// <param name="instance">XDG base instance</param>
-    internal XDGBase(IntPtr instance) : base(instance) {
+    internal NativeXDGBase(IntPtr instance) : base(instance) {
         if(Instance == IntPtr.Zero)
             throw new ExternalException("Failed to create XDG base interface.");
     }
 
 
 
+    /// <inheritdoc/>
     protected internal override unsafe void AddListener(XDG.XDGBaseListener *listener, void *data) {
         int res = wrapper_xdg_wm_base_add_listener(Instance, listener, data);
         if(res < 0)
@@ -47,5 +48,6 @@ public abstract partial class XDGBase : WaylandListener<XDG.XDGBaseListener> {
 
 
 
+    /// <inheritdoc/>
     protected override void OnDispose() { /* Do nothing */ }
 }

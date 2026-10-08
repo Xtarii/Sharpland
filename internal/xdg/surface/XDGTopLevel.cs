@@ -32,7 +32,7 @@ internal partial class XDGTopLevel {
     /// Creates XDG top level object
     /// </summary>
     /// <param name="surface">XDG surface object</param>
-    internal XDGTopLevel(XDGSurface surface) {
+    internal XDGTopLevel(NativeXDGSurface surface) {
         Instance = wrapper_xdg_surface_get_toplevel(surface.Instance);
         if(Instance == IntPtr.Zero)
             throw new ExternalException("Failed to get XDG surface to level object");
